@@ -1,5 +1,6 @@
 package api.example.hrm_system.employee;
 
+import api.example.hrm_system.attendance.Attendance;
 import api.example.hrm_system.department.Department;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
