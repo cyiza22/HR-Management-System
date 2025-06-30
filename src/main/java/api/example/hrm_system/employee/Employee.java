@@ -1,9 +1,6 @@
 package api.example.hrm_system.employee;
 
-<<<<<<< Updated upstream
-=======
 import api.example.hrm_system.Leave.Leave;
->>>>>>> Stashed changes
 import api.example.hrm_system.Project.Project;
 import api.example.hrm_system.attendance.Attendance;
 import api.example.hrm_system.department.Department;

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EmployeeDashboardDto {
     @NotBlank
-    private String id;
+    private String employeeId;
     @NotBlank
     private String fullName;
     @NotBlank
@@ -18,11 +18,7 @@ public class EmployeeDashboardDto {
     @NotBlank
     private String designation;
     @NotBlank
-    private String employeeId;
+    private String employeeType;
     @NotBlank
     private String status;
-    @NotBlank
-    private String employeeType;
-
 }
-

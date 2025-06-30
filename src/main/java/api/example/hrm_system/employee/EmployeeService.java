@@ -1,6 +1,7 @@
 package api.example.hrm_system.employee;
 
 import api.example.hrm_system.employee.EmployeeDashboardDto;
+import lombok.Data;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class EmployeeService {
                 new EmployeeDashboardDto(
                         emp.getEmployeeId(),
                         emp.getFirstName() + " " + emp.getLastName(),
-                        emp.getDepartment().getName(),
+                        emp.getDepartment().getDepartmentName(),
                         emp.getDesignation(),
                         emp.getEmployeeType(),
                         emp.getStatus()
