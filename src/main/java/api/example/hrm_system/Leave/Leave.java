@@ -2,11 +2,17 @@ package api.example.hrm_system.Leave;
 
 import api.example.hrm_system.employee.Employee;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "leave")
 public class Leave {
 

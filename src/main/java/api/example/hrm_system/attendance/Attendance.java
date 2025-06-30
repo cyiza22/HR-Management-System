@@ -19,7 +19,7 @@ public class Attendance {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // attendance_id
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
@@ -34,17 +34,29 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     private AttendanceStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private WorkType workType;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public enum AttendanceStatus {
+        OnTime,
+        Late
+    }
+
+    public enum WorkType {
+        Office,
+        Remote
+    }
+
     @PrePersist
-    public void onCreate() {
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void onUpdate() {
+    protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }

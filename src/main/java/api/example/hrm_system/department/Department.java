@@ -22,6 +22,12 @@ public class Department {
 
     private String location;
 
+    @Enumerated(EnumType.STRING)
+    private WorkType workType;
+
+    @Enumerated(EnumType.STRING)
+    private EmploymentStatus employmentStatus;
+
     // Manager of the department (optional, one employee can manage a department)
     @ManyToOne
     @JoinColumn(name = "manager_id")
@@ -35,6 +41,19 @@ public class Department {
     @JsonBackReference
     private List<Employee> employees;
 
+    public enum WorkType {
+        Office,
+        Remote,
+        Hybrid
+    }
+
+    public enum EmploymentStatus {
+        Active,
+        Inactive,
+        Suspended,
+        Terminated
+    }
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -44,5 +63,4 @@ public class Department {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }

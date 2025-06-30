@@ -1,5 +1,6 @@
 package api.example.hrm_system.employee;
 
+import api.example.hrm_system.Project.Project;
 import api.example.hrm_system.attendance.Attendance;
 import api.example.hrm_system.department.Department;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -84,7 +85,7 @@ public class Employee {
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<EmployeeDocument> documents;
+    private List<Document> documents;
 
 
 }
