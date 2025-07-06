@@ -1,8 +1,6 @@
 package api.example.hrm_system.payroll;
 
-<<<<<<< Updated upstream
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,11 +22,4 @@ public interface PayrollRepository extends JpaRepository<Payroll, Long> {
     @Query("SELECT p FROM Payroll p WHERE p.deduction > 0")
     List<Payroll> findEmployeesWithDeductions();
 }
-=======
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface PayrollRepository extends JpaRepository<Payroll, Long> {
-}
->>>>>>> Stashed changes

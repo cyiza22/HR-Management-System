@@ -1,7 +1,6 @@
 package api.example.hrm_system.attendance;
 
 import api.example.hrm_system.employee.Employee;
-import api.example.hrm_system.employee.EmployeeRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
