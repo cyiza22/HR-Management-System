@@ -1,5 +1,6 @@
 package api.example.hrm_system.employee;
 
+import api.example.hrm_system.Document.Document;
 import api.example.hrm_system.Leave.Leave;
 import api.example.hrm_system.Project.Project;
 import api.example.hrm_system.attendance.Attendance;
@@ -14,7 +15,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.catalina.User;
 
-import javax.swing.text.Document;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -70,7 +70,7 @@ public class Employee {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "manager")
     @JsonManagedReference
     private Department department;
 
@@ -79,7 +79,7 @@ public class Employee {
     @JsonManagedReference
     private List<Attendance> attendances;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Project> projects;
 
@@ -87,7 +87,7 @@ public class Employee {
     @JsonManagedReference
     private List<Leave> leaves;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Document> documents;
 

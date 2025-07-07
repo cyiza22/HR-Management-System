@@ -33,6 +33,6 @@ public class Project {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "employee")
     private Employee assignedTo;
 }

@@ -21,7 +21,7 @@ public class Leave {
     private Integer leaveId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "employee")
     private Employee employee;
 
     private LocalDate startDate;
