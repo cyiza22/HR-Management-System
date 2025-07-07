@@ -1,6 +1,5 @@
 package api.example.hrm_system.payroll;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

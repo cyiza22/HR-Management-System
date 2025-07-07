@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class PayrollDTO {
 
     private Long id;
@@ -41,5 +40,6 @@ public class PayrollDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
 
 }
