@@ -1,5 +1,6 @@
 package api.example.hrm_system.Document;
 
+import api.example.hrm_system.employee.ProfessionalInfo.ProfessionalInfoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,11 +13,11 @@ import java.util.List;
 public class DocumentController {
 
     private final DocumentService documentService;
-    private final EmployeeService employeeService;
+    private final ProfessionalInfoService professionalInfoService;
 
-    public DocumentController(DocumentService documentService, EmployeeService employeeService) {
+    public DocumentController(DocumentService documentService, ProfessionalInfoService professionalInfoService) {
         this.documentService = documentService;
-        this.employeeService = employeeService;
+        this.professionalInfoService = professionalInfoService;
     }
 
     @PostMapping("/new")

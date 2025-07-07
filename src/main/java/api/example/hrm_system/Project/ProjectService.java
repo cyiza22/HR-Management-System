@@ -1,6 +1,7 @@
 package api.example.hrm_system.Project;
 
 import api.example.hrm_system.employee.Employee;
+import api.example.hrm_system.employee.ProfessionalInfo.ProfessionalInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,16 +11,16 @@ import java.util.List;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final EmployeeRepository employeeRepository;
+    private final ProfessionalInfoRepository professionalInfoRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, EmployeeRepository employeeRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProfessionalInfoRepository professionalInfoRepository) {
         this.projectRepository = projectRepository;
-        this.employeeRepository = employeeRepository;
+        this.professionalInfoRepository = professionalInfoRepository;
     }
 
     public Project createProject(ProjectDTO dto) {
-        Employee employee = employeeRepository.findById(Long.valueOf(dto.getEmployeeId()))
+        Employee employee = professionalInfoRepository.findById(Long.valueOf(dto.getEmployeeId()))
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         Project project = new Project();

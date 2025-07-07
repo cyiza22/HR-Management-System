@@ -1,40 +1,57 @@
 package api.example.hrm_system.payroll;
 
-import api.example.hrm_system.employee.Employee;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+<<<<<<< Updated upstream
 private Long id; // payroll_id
+=======
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "payroll")
+public class Payroll {
+>>>>>>> Stashed changes
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
-    @JsonBackReference
-    private Employee employee;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @NotNull(message = "Pay date is required")
-    private LocalDate payDate;
+    @Column(name = "employee_name", nullable = false)
+    private String employeeName;
 
-    private BigDecimal grossAmount;
-    private BigDecimal deductions;
-    private BigDecimal netAmount;
+    @Column(name = "ctc", nullable = false, precision = 10, scale = 2)
+    private BigDecimal ctc;
 
+    @Column(name = "salary_per_month", nullable = false, precision = 10, scale = 2)
+    private BigDecimal salaryPerMonth;
+
+    @Column(name = "deduction", precision = 10, scale = 2)
+    private BigDecimal deduction = BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private PayrollStatus status = PayrollStatus.PENDING;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
+    public enum PayrollStatus {
+        PENDING,
+        COMPLETED
     }
 
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-
-
+}

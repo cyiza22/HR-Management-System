@@ -1,6 +1,7 @@
 package api.example.hrm_system.Notification;
 
 import api.example.hrm_system.employee.Employee;
+import api.example.hrm_system.employee.ProfessionalInfo.ProfessionalInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +12,16 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final EmployeeRepository employeeRepository;
+    private final ProfessionalInfoRepository professionalInfoRepository;
 
     @Autowired
-    public NotificationService(NotificationRepository notificationRepository, EmployeeRepository employeeRepository) {
+    public NotificationService(NotificationRepository notificationRepository, ProfessionalInfoRepository professionalInfoRepository) {
         this.notificationRepository = notificationRepository;
-        this.employeeRepository = employeeRepository;
+        this.professionalInfoRepository = professionalInfoRepository;
     }
 
     public Notification createNotification(NotificationDTO dto) {
-        Employee employee = employeeRepository.findById(Long.valueOf(dto.getEmployeeId()))
+        Employee employee = professionalInfoRepository.findById(Long.valueOf(dto.getEmployeeId()))
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         Notification notification = new Notification();

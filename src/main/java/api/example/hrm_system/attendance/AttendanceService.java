@@ -1,6 +1,7 @@
 package api.example.hrm_system.attendance;
 
 import api.example.hrm_system.employee.Employee;
+import api.example.hrm_system.employee.ProfessionalInfo.ProfessionalInfoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -11,11 +12,11 @@ import java.util.stream.Collectors;
 public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
-    private final EmployeeRepository employeeRepository;
+    private final ProfessionalInfoRepository professionalInfoRepository;
 
-    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository) {
+    public AttendanceService(AttendanceRepository attendanceRepository, ProfessionalInfoRepository professionalInfoRepository) {
         this.attendanceRepository = attendanceRepository;
-        this.employeeRepository = employeeRepository;
+        this.professionalInfoRepository = professionalInfoRepository;
     }
 
     public List<AttendanceDTO> getAllAttendances() {

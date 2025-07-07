@@ -1,6 +1,7 @@
 package api.example.hrm_system.Leave;
 
 import api.example.hrm_system.employee.Employee;
+import api.example.hrm_system.employee.ProfessionalInfo.ProfessionalInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +12,16 @@ import java.util.List;
 public class LeaveService {
 
     private final LeaveRepository leaveRepository;
-    private final EmployeeRepository employeeRepository;
+    private final ProfessionalInfoRepository professionalInfoRepository;
 
     @Autowired
-    public LeaveService(LeaveRepository leaveRepository, EmployeeRepository employeeRepository) {
+    public LeaveService(LeaveRepository leaveRepository, ProfessionalInfoRepository professionalInfoRepository) {
         this.leaveRepository = leaveRepository;
-        this.employeeRepository = employeeRepository;
+        this.professionalInfoRepository = professionalInfoRepository;
     }
 
     public Leave applyLeave(LeaveDTO dto) {
-        Employee employee = employeeRepository.findById(Long.valueOf(dto.getEmployeeId()))
+        Employee employee = professionalInfoRepository.findById(Long.valueOf(dto.getEmployeeId()))
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         Leave leave = new Leave();
