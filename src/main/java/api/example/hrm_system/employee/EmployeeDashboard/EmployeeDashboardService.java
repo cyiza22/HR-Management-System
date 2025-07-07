@@ -14,12 +14,15 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeDashboardService {
 
+    private final EmployeeDashboardRepository employeeDashboardRepository;
 
-    private EmployeeDashboardRepository employeeDashboardRepository;
+    // Inject repository via constructor
+    public EmployeeDashboardService(EmployeeDashboardRepository employeeDashboardRepository) {
+        this.employeeDashboardRepository = employeeDashboardRepository;
+    }
 
     public List<EmployeeDashboardDTO> getAllEmployees() {
-        List<Employee> employees = employeeDashboardRepository.findAll();
-        return employees.stream()
+        return employeeDashboardRepository.findAll().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -30,96 +33,79 @@ public class EmployeeDashboardService {
                 Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Employee> employeePage = employeeDashboardRepository.findAll(pageable);
-
-        return employeePage.map(this::convertToDto);
+        return employeeDashboardRepository.findAll(pageable)
+                .map(this::convertToDto);
     }
 
     public EmployeeDashboardDTO getEmployeeById(Long id) {
-        Optional<Employee> employee = employeeDashboardRepository.findById(id);
-        if (employee.isPresent()) {
-            return convertToDto(employee.get());
-        }
-        throw new RuntimeException("Employee not found with id: " + id);
+        return employeeDashboardRepository.findById(id)
+                .map(this::convertToDto)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
     }
 
     public EmployeeDashboardDTO getEmployeeByName(String firstName, String lastName) {
-        Optional<Employee> employee = employeeDashboardRepository.findByFirstNameAndLastName(firstName, lastName);
-        if (employee.isPresent()) {
-            return convertToDto(employee.get());
-        }
-        throw new RuntimeException("Employee not found with name: " + firstName + " " + lastName);
+        return employeeDashboardRepository.findByFirstNameAndLastName(firstName, lastName)
+                .map(this::convertToDto)
+                .orElseThrow(() -> new RuntimeException("Employee not found with name: " + firstName + " " + lastName));
     }
 
     public EmployeeDashboardDTO getEmployeeByEmployeeId(String employeeId) {
-        Optional<Employee> employee = employeeDashboardRepository.findByEmployeeId(employeeId);
-        if (employee.isPresent()) {
-            return convertToDto(employee.get());
-        }
-        throw new RuntimeException("Employee not found with employee ID: " + employeeId);
+        return employeeDashboardRepository.findByEmployeeId(employeeId)
+                .map(this::convertToDto)
+                .orElseThrow(() -> new RuntimeException("Employee not found with employee ID: " + employeeId));
     }
 
     public List<EmployeeDashboardDTO> searchEmployees(String searchTerm) {
-        List<Employee> employees = employeeDashboardRepository.searchEmployees(searchTerm);
-        return employees.stream()
+        return employeeDashboardRepository.searchEmployees(searchTerm).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> searchByFirstName(String firstName) {
-        List<Employee> employees = employeeDashboardRepository.findByFirstNameContainingIgnoreCase(firstName);
-        return employees.stream()
+        return employeeDashboardRepository.findByFirstNameContainingIgnoreCase(firstName).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> searchByLastName(String lastName) {
-        List<Employee> employees = employeeDashboardRepository.findByLastNameContainingIgnoreCase(lastName);
-        return employees.stream()
+        return employeeDashboardRepository.findByLastNameContainingIgnoreCase(lastName).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> searchByFullName(String fullName) {
-        List<Employee> employees = employeeDashboardRepository.findByFullNameContainingIgnoreCase(fullName);
-        return employees.stream()
+        return employeeDashboardRepository.findByFullNameContainingIgnoreCase(fullName).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> getEmployeesByDepartment(String departmentName) {
-        List<Employee> employees = employeeDashboardRepository.findByDepartmentName(departmentName);
-        return employees.stream()
+        return employeeDashboardRepository.findByDepartmentName(departmentName).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> getEmployeesByDesignation(String designation) {
-        List<Employee> employees = employeeDashboardRepository.findByDesignation(designation);
-        return employees.stream()
+        return employeeDashboardRepository.findByDesignation(designation).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> getEmployeesByType(String employeeType) {
-        List<Employee> employees = employeeDashboardRepository.findByEmployeeType(employeeType);
-        return employees.stream()
+        return employeeDashboardRepository.findByEmployeeType(employeeType).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> getEmployeesByStatus(String status) {
-        List<Employee> employees = employeeDashboardRepository.findByStatus(status);
-        return employees.stream()
+        return employeeDashboardRepository.findByStatus(status).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDashboardDTO> getEmployeesByFilters(String department, String designation,
                                                             String employeeType, String status) {
-        List<Employee> employees = employeeDashboardRepository.findByMultipleFilters(
-                department, designation, employeeType, status);
-        return employees.stream()
+        return employeeDashboardRepository.findByMultipleFilters(department, designation, employeeType, status).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -140,8 +126,6 @@ public class EmployeeDashboardService {
         return employeeDashboardRepository.count();
     }
 
-
-
     private EmployeeDashboardDTO convertToDto(Employee employee) {
         EmployeeDashboardDTO dto = new EmployeeDashboardDTO();
         dto.setId(employee.getId());
@@ -158,5 +142,3 @@ public class EmployeeDashboardService {
         return dto;
     }
 }
-
-

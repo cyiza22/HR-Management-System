@@ -1,6 +1,5 @@
 package api.example.hrm_system.DTOs;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,6 +16,7 @@ public class EmailService {
         message.setTo(toEmail);
         message.setSubject("Your OTP Code");
         message.setText("Your OTP is: " + otp);
+        message.setFrom("your-email@gmail.com"); // Optional, but recommended
 
         javaMailSender.send(message);
     }

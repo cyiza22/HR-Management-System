@@ -18,8 +18,6 @@ public class EmployeeDashboardDTO {
     private String mobileNumber;
     private String department;
     private String designation;
-    private String employeeType; // Office, Remote
-    private String status; // Permanent, Contract, etc.
-
-
+    private String employeeType;
+    private String status;
 }
