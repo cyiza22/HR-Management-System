@@ -10,9 +10,11 @@ import java.util.List;
 public class HolidayController {
 
     private final HolidayService holidayService;
+    private final HolidayRepository holidayRepository;
 
-    public HolidayController(HolidayService holidayService) {
+    public HolidayController(HolidayService holidayService, HolidayRepository holidayRepository) {
         this.holidayService = holidayService;
+        this.holidayRepository = holidayRepository;
     }
 
     @PostMapping("/add")

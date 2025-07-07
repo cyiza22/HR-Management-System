@@ -4,12 +4,20 @@ import api.example.hrm_system.employee.Employee;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-private Long id; // payroll_id
+@Entity
+@Data
+@Table(name = "payrolls")
+public class Payroll {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // payroll_id
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
@@ -36,5 +44,4 @@ private Long id; // payroll_id
         this.updatedAt = LocalDateTime.now();
     }
 
-
-
+}
