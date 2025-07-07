@@ -1,57 +1,51 @@
 package api.example.hrm_system.payroll;
 
+import api.example.hrm_system.employee.Employee;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-<<<<<<< Updated upstream
-private Long id; // payroll_id
-=======
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "payroll")
+@Table(name = "payrolls")
 public class Payroll {
->>>>>>> Stashed changes
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // payroll_id
 
-    @Column(name = "employee_name", nullable = false)
-    private String employeeName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id", nullable = false)
+    @JsonBackReference
+    private Employee employee;
 
-    @Column(name = "ctc", nullable = false, precision = 10, scale = 2)
-    private BigDecimal ctc;
+    @NotNull(message = "Pay date is required")
+    private LocalDate payDate;
 
-    @Column(name = "salary_per_month", nullable = false, precision = 10, scale = 2)
-    private BigDecimal salaryPerMonth;
+    private BigDecimal grossAmount;
+    private BigDecimal deductions;
+    private BigDecimal netAmount;
 
-    @Column(name = "deduction", precision = 10, scale = 2)
-    private BigDecimal deduction = BigDecimal.ZERO;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private PayrollStatus status = PayrollStatus.PENDING;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public enum PayrollStatus {
-        PENDING,
-        COMPLETED
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
 }

@@ -1,7 +1,7 @@
 package api.example.hrm_system.department;
 
 import api.example.hrm_system.employee.Employee;
-import api.example.hrm_system.employee.ProfessionalInfo.ProfessionalInfoRepository;
+import api.example.hrm_system.employee.EmployeeDashboard.EmployeeDashboardRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
-    private final ProfessionalInfoRepository professionalInfoRepository;
+    private final EmployeeDashboardRepository employeeDashboardRepository;
 
-    public DepartmentService(DepartmentRepository departmentRepository, ProfessionalInfoRepository professionalInfoRepository) {
+    public DepartmentService(DepartmentRepository departmentRepository, EmployeeDashboardRepository employeeDashboardRepository) {
         this.departmentRepository = departmentRepository;
-        this.professionalInfoRepository = professionalInfoRepository;
+        this.employeeDashboardRepository = employeeDashboardRepository;
     }
 
     public List<DepartmentDTO> getAllDepartments() {
