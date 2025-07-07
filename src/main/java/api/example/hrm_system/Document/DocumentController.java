@@ -42,7 +42,7 @@ public class DocumentController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteDocument(@RequestParam Integer id) {
+    public ResponseEntity<Void> deleteDocument(@RequestParam Integer id) throws IOException {
         documentService.deleteDocument(id);
         return ResponseEntity.noContent().build();
     }

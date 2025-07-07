@@ -1,6 +1,7 @@
 package api.example.hrm_system.Document;
 
 import api.example.hrm_system.employee.Employee;
+import api.example.hrm_system.Cloudinary.CloudinaryService;
 import api.example.hrm_system.employee.ProfessionalInfo.ProfessionalInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DocumentService {
@@ -27,7 +29,6 @@ public class DocumentService {
     }
 
     public Document createDocument(DocumentDTO dto) {
-        // ✅ Use dto.getOwner() properly on an instance, not the class
         Employee employee = professionalInfoRepository.findById(dto.getOwner().getId())
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
@@ -44,15 +45,19 @@ public class DocumentService {
         Employee employee = professionalInfoRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        String url = cloudinaryService.uploadFile(file);
 
-        Document doc = new Document();
-        doc.setName(name);
-        doc.setOwner(employee);
-        doc.setUrl(url);
-        doc.setUploadedAt(LocalDateTime.now());
+        Map<String, String> cloudinaryData = cloudinaryService.uploadFile(file);
 
-        return documentRepository.save(doc);
+        Document document = new Document();
+        document.setUrl(cloudinaryData.get("url"));
+        document.setPublicId(cloudinaryData.get("publicId"));
+        document.setName(file.getName());
+        document.setUploadedAt(LocalDateTime.now());
+        document.setOwner(employee);
+
+        documentRepository.save(document);
+
+        return document;
     }
 
     public Document findById(Integer id) {
@@ -73,8 +78,6 @@ public class DocumentService {
 
         existing.setName(updatedDoc.getName());
         existing.setUrl(updatedDoc.getUrl());
-
-        // Optional: update owner if needed
         if (updatedDoc.getOwner() != null && updatedDoc.getOwner().getId() != null) {
             Employee employee = professionalInfoRepository.findById(updatedDoc.getOwner().getId())
                     .orElseThrow(() -> new RuntimeException("Employee not found"));
@@ -86,7 +89,13 @@ public class DocumentService {
         return documentRepository.save(existing);
     }
 
-    public void deleteDocument(Integer id) {
-        documentRepository.deleteById(id);
+    public void deleteDocument(Integer documentId) throws IOException {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found"));
+
+        cloudinaryService.deleteFile(document.getPublicId());
+
+        documentRepository.delete(document);
     }
+
 }

@@ -26,5 +26,8 @@ public class Document {
     @JoinColumn(name = "employee_id")
     private Employee owner;
 
+    private String publicId;
+
+
     private LocalDateTime uploadedAt;
 }
