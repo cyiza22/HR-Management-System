@@ -12,7 +12,12 @@ import java.util.Map;
 @Service
 public class CloudinaryService {
 
-    private Cloudinary cloudinary;
+    private final Cloudinary cloudinary;
+
+    // Inject Cloudinary bean using constructor
+    public CloudinaryService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
 
     public Map<String, String> uploadFile(MultipartFile file) throws IOException {
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "auto"));
@@ -30,6 +35,4 @@ public class CloudinaryService {
     public void deleteFile(String publicId) throws IOException {
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
     }
-
-
 }

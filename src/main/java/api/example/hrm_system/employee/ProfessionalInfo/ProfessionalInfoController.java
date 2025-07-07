@@ -12,110 +12,98 @@ import java.util.Optional;
 @CrossOrigin(origins = "*")
 public class ProfessionalInfoController {
 
-    private ProfessionalInfoService professionalInfoService;
+    private final ProfessionalInfoService professionalInfoService;
 
+    public ProfessionalInfoController(ProfessionalInfoService professionalInfoService) {
+        this.professionalInfoService = professionalInfoService;
+    }
 
     @GetMapping("/getAll")
     public ResponseEntity<List<ProfessionalInfoDTO>> getAllProfessionalInfo() {
-        List<ProfessionalInfoDTO> professionalInfoList = professionalInfoService.getAllProfessionalInfo();
-        return ResponseEntity.ok(professionalInfoList);
+        return ResponseEntity.ok(professionalInfoService.getAllProfessionalInfo());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfessionalInfoDTO> getProfessionalInfoById(@PathVariable Long id) {
-        Optional<ProfessionalInfoDTO> professionalInfo = professionalInfoService.getProfessionalInfoById(id);
-        return professionalInfo.map(ResponseEntity::ok)
+    public ResponseEntity<ProfessionalInfoDTO> getById(@PathVariable Long id) {
+        return professionalInfoService.getProfessionalInfoById(id)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<ProfessionalInfoDTO> getProfessionalInfoByEmployeeId(@PathVariable String employeeId) {
-        Optional<ProfessionalInfoDTO> professionalInfo = professionalInfoService.getProfessionalInfoByEmployeeId(employeeId);
-        return professionalInfo.map(ResponseEntity::ok)
+    public ResponseEntity<ProfessionalInfoDTO> getByEmployeeId(@PathVariable String employeeId) {
+        return professionalInfoService.getProfessionalInfoByEmployeeId(employeeId)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
 
     @GetMapping("/username/{username}")
-    public ResponseEntity<ProfessionalInfoDTO> getProfessionalInfoByUsername(@PathVariable String username) {
-        Optional<ProfessionalInfoDTO> professionalInfo = professionalInfoService.getProfessionalInfoByUsername(username);
-        return professionalInfo.map(ResponseEntity::ok)
+    public ResponseEntity<ProfessionalInfoDTO> getByUsername(@PathVariable String username) {
+        return professionalInfoService.getProfessionalInfoByUsername(username)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
     @GetMapping("/email/{email}")
-    public ResponseEntity<ProfessionalInfoDTO> getProfessionalInfoByEmail(@PathVariable String email) {
-        Optional<ProfessionalInfoDTO> professionalInfo = professionalInfoService.getProfessionalInfoByEmail(email);
-        return professionalInfo.map(ResponseEntity::ok)
+    public ResponseEntity<ProfessionalInfoDTO> getByEmail(@PathVariable String email) {
+        return professionalInfoService.getProfessionalInfoByEmail(email)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/department/{department}")
-    public ResponseEntity<List<ProfessionalInfoDTO>> getProfessionalInfoByDepartment(@PathVariable String department) {
-        List<ProfessionalInfoDTO> professionalInfoList = professionalInfoService.getProfessionalInfoByDepartment(department);
-        return ResponseEntity.ok(professionalInfoList);
+    public ResponseEntity<List<ProfessionalInfoDTO>> getByDepartment(@PathVariable String department) {
+        return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDepartment(department));
     }
 
-
     @GetMapping("/designation/{designation}")
-    public ResponseEntity<List<ProfessionalInfoDTO>> getProfessionalInfoByDesignation(@PathVariable String designation) {
-        List<ProfessionalInfoDTO> professionalInfoList = professionalInfoService.getProfessionalInfoByDesignation(designation);
-        return ResponseEntity.ok(professionalInfoList);
+    public ResponseEntity<List<ProfessionalInfoDTO>> getByDesignation(@PathVariable String designation) {
+        return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDesignation(designation));
     }
 
     @GetMapping("/employee-type/{employeeType}")
-    public ResponseEntity<List<ProfessionalInfoDTO>> getProfessionalInfoByEmployeeType(@PathVariable String employeeType) {
-        List<ProfessionalInfoDTO> professionalInfoList = professionalInfoService.getProfessionalInfoByEmployeeType(employeeType);
-        return ResponseEntity.ok(professionalInfoList);
+    public ResponseEntity<List<ProfessionalInfoDTO>> getByEmployeeType(@PathVariable String employeeType) {
+        return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByEmployeeType(employeeType));
     }
 
-
     @GetMapping("/office-location/{officeLocation}")
-    public ResponseEntity<List<ProfessionalInfoDTO>> getProfessionalInfoByOfficeLocation(@PathVariable String officeLocation) {
-        List<ProfessionalInfoDTO> professionalInfoList = professionalInfoService.getProfessionalInfoByOfficeLocation(officeLocation);
-        return ResponseEntity.ok(professionalInfoList);
+    public ResponseEntity<List<ProfessionalInfoDTO>> getByOfficeLocation(@PathVariable String officeLocation) {
+        return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByOfficeLocation(officeLocation));
     }
 
     @GetMapping("/working-days/{workingDays}")
-    public ResponseEntity<List<ProfessionalInfoDTO>> getProfessionalInfoByWorkingDays(@PathVariable String workingDays) {
-        List<ProfessionalInfoDTO> professionalInfoList = professionalInfoService.getProfessionalInfoByWorkingDays(workingDays);
-        return ResponseEntity.ok(professionalInfoList);
+    public ResponseEntity<List<ProfessionalInfoDTO>> getByWorkingDays(@PathVariable Integer workingDays) {
+        return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByWorkingDays(workingDays));
     }
 
     @GetMapping("/department/{department}/designation/{designation}")
-    public ResponseEntity<List<ProfessionalInfoDTO>> getProfessionalInfoByDepartmentAndDesignation(
+    public ResponseEntity<List<ProfessionalInfoDTO>> getByDepartmentAndDesignation(
             @PathVariable String department, @PathVariable String designation) {
-        List<ProfessionalInfoDTO> professionalInfoList =
-                professionalInfoService.getProfessionalInfoByDepartmentAndDesignation(department, designation);
-        return ResponseEntity.ok(professionalInfoList);
+        return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDepartmentAndDesignation(department, designation));
     }
 
     @GetMapping("/department/{department}/office-location/{officeLocation}")
-    public ResponseEntity<List<ProfessionalInfoDTO>> getProfessionalInfoByDepartmentAndOfficeLocation(
+    public ResponseEntity<List<ProfessionalInfoDTO>> getByDepartmentAndOfficeLocation(
             @PathVariable String department, @PathVariable String officeLocation) {
-        List<ProfessionalInfoDTO> professionalInfoList =
-                professionalInfoService.getProfessionalInfoByDepartmentAndOfficeLocation(department, officeLocation);
-        return ResponseEntity.ok(professionalInfoList);
+        return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDepartmentAndOfficeLocation(department, officeLocation));
     }
 
     @PostMapping
-    public ResponseEntity<ProfessionalInfoDTO> createProfessionalInfo(@Valid @RequestBody ProfessionalInfoDTO professionalInfoDTO) {
+    public ResponseEntity<ProfessionalInfoDTO> create(@Valid @RequestBody ProfessionalInfoDTO professionalInfoDTO) {
         try {
-            ProfessionalInfoDTO createdProfessionalInfo = professionalInfoService.createProfessionalInfo(professionalInfoDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdProfessionalInfo);
+            ProfessionalInfoDTO created = professionalInfoService.createProfessionalInfo(professionalInfoDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfessionalInfoDTO> updateProfessionalInfo(
+    public ResponseEntity<ProfessionalInfoDTO> update(
             @PathVariable Long id, @Valid @RequestBody ProfessionalInfoDTO professionalInfoDTO) {
         try {
-            Optional<ProfessionalInfoDTO> updatedProfessionalInfo =
-                    professionalInfoService.updateProfessionalInfo(id, professionalInfoDTO);
-            return updatedProfessionalInfo.map(ResponseEntity::ok)
+            return professionalInfoService.updateProfessionalInfo(id, professionalInfoDTO)
+                    .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -123,50 +111,43 @@ public class ProfessionalInfoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProfessionalInfo(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         boolean deleted = professionalInfoService.deleteProfessionalInfo(id);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/exists/employee/{employeeId}")
     public ResponseEntity<Boolean> existsByEmployeeId(@PathVariable String employeeId) {
-        boolean exists = professionalInfoService.existsByEmployeeId(employeeId);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(professionalInfoService.existsByEmployeeId(employeeId));
     }
-
 
     @GetMapping("/exists/username/{username}")
     public ResponseEntity<Boolean> existsByUsername(@PathVariable String username) {
-        boolean exists = professionalInfoService.existsByUsername(username);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(professionalInfoService.existsByUsername(username));
     }
 
     @GetMapping("/exists/email/{email}")
     public ResponseEntity<Boolean> existsByEmail(@PathVariable String email) {
-        boolean exists = professionalInfoService.existsByEmail(email);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(professionalInfoService.existsByEmail(email));
     }
 
     @GetMapping("/count/department/{department}")
     public ResponseEntity<Long> countByDepartment(@PathVariable String department) {
-        long count = professionalInfoService.countByDepartment(department);
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(professionalInfoService.countByDepartment(department));
     }
 
     @GetMapping("/count/designation/{designation}")
     public ResponseEntity<Long> countByDesignation(@PathVariable String designation) {
-        long count = professionalInfoService.countByDesignation(designation);
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(professionalInfoService.countByDesignation(designation));
     }
 
     @GetMapping("/count/office-location/{officeLocation}")
     public ResponseEntity<Long> countByOfficeLocation(@PathVariable String officeLocation) {
-        long count = professionalInfoService.countByOfficeLocation(officeLocation);
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(professionalInfoService.countByOfficeLocation(officeLocation));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProfessionalInfoDTO>> searchProfessionalInfo(
+    public ResponseEntity<List<ProfessionalInfoDTO>> search(
             @RequestParam(required = false) String department,
             @RequestParam(required = false) String designation,
             @RequestParam(required = false) String employeeType,

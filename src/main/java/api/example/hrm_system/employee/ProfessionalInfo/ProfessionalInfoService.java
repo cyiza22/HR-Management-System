@@ -41,7 +41,7 @@ public class ProfessionalInfoService {
     }
 
     public List<ProfessionalInfoDTO> getProfessionalInfoByDepartment(String department) {
-        return professionalInfoRepository.findByDepartment(department)
+        return professionalInfoRepository.findByDepartment_DepartmentName(department)
                 .stream()
                 .map(this::convertToDTO)
                 .toList();
@@ -68,7 +68,7 @@ public class ProfessionalInfoService {
                 .toList();
     }
 
-    public List<ProfessionalInfoDTO> getProfessionalInfoByWorkingDays(String workingDays) {
+    public List<ProfessionalInfoDTO> getProfessionalInfoByWorkingDays(Integer workingDays) {
         return professionalInfoRepository.findByWorkingDays(workingDays)
                 .stream()
                 .map(this::convertToDTO)
@@ -76,14 +76,14 @@ public class ProfessionalInfoService {
     }
 
     public List<ProfessionalInfoDTO> getProfessionalInfoByDepartmentAndDesignation(String department, String designation) {
-        return professionalInfoRepository.findByDepartmentAndDesignation(department, designation)
+        return professionalInfoRepository.findByDepartment_DepartmentNameAndDesignation(department, designation)
                 .stream()
                 .map(this::convertToDTO)
                 .toList();
     }
 
     public List<ProfessionalInfoDTO> getProfessionalInfoByDepartmentAndOfficeLocation(String department, String officeLocation) {
-        return professionalInfoRepository.findByDepartmentAndOfficeLocation(department, officeLocation)
+        return professionalInfoRepository.findByDepartment_DepartmentNameAndOfficeLocation(department, officeLocation)
                 .stream()
                 .map(this::convertToDTO)
                 .toList();
@@ -125,7 +125,7 @@ public class ProfessionalInfoService {
     }
 
     public long countByDepartment(String department) {
-        return professionalInfoRepository.countByDepartment(department);
+        return professionalInfoRepository.countByDepartment_DepartmentName(department);
     }
 
     public long countByDesignation(String designation) {
@@ -172,6 +172,7 @@ public class ProfessionalInfoService {
         }
 
         entity.setDesignation(dto.getDesignation());
+
         if (dto.getWorkingDays() != null) {
             entity.setWorkingDays(Integer.parseInt(dto.getWorkingDays()));
         }
@@ -186,6 +187,7 @@ public class ProfessionalInfoService {
         entity.setUsername(dto.getUsername());
         entity.setEmail(dto.getEmail());
         entity.setEmployeeType(dto.getEmployeeType());
+
         if (dto.getDepartment() != null) {
             if (entity.getDepartment() == null) {
                 entity.setDepartment(new Department());
@@ -194,6 +196,7 @@ public class ProfessionalInfoService {
         }
 
         entity.setDesignation(dto.getDesignation());
+
         if (dto.getWorkingDays() != null) {
             entity.setWorkingDays(Integer.parseInt(dto.getWorkingDays()));
         }

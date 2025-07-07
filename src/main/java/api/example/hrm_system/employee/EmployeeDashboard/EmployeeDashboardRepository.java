@@ -25,7 +25,7 @@ public interface EmployeeDashboardRepository extends JpaRepository<Employee, Lon
 
     Optional<Employee> findByEmployeeId(String employeeId);
 
-    // Fixed: changed d.name to d.departmentName
+
     @Query("SELECT e FROM Employee e JOIN e.department d WHERE d.departmentName = :departmentName")
     List<Employee> findByDepartmentName(@Param("departmentName") String departmentName);
 
@@ -53,7 +53,7 @@ public interface EmployeeDashboardRepository extends JpaRepository<Employee, Lon
             "LOWER(e.employeeId) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Employee> searchEmployees(@Param("searchTerm") String searchTerm);
 
-    // Fixed: changed d.name to d.departmentName
+
     @Query("SELECT COUNT(e) FROM Employee e JOIN e.department d WHERE d.departmentName = :departmentName")
     long countByDepartmentName(@Param("departmentName") String departmentName);
 

@@ -21,3 +21,4 @@ public class EmployeeDashboardDTO {
     private String employeeType;
     private String status;
 }
+
