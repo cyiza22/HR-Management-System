@@ -44,8 +44,8 @@ public class HolidayController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Holiday>> searchHolidays(@RequestParam String name) {
-        return ResponseEntity.ok(holidayRepository.findByNameContainingIgnoreCase(name));
+    public ResponseEntity<List<Holiday>> searchHolidays() {
+        return ResponseEntity.ok(holidayService.getUpcomingHolidays());
     }
 
 }

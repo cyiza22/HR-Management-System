@@ -1,7 +1,6 @@
 package api.example.hrm_system.Project;
 
 import api.example.hrm_system.employee.Employee;
-import api.example.hrm_system.employee.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

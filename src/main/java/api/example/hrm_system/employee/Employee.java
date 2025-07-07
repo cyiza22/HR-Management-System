@@ -51,7 +51,10 @@ public class Employee {
     private String city;
     private String state;
     private String zipCode;
-
+    private String slackId;
+    private String githubId;
+    private String skypeId;
+    private String username;
 
     private String designation;
 
@@ -64,18 +67,13 @@ public class Employee {
     private String officeLocation;
     private String status; // Permanent, Contract, etc.
 
-    // Account Access fields
-    private String slackId;
-    private String githubId;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     @JsonManagedReference
     private Department department;
 
-    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
-    @JsonBackReference
-    private User user;
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -92,6 +90,7 @@ public class Employee {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Document> documents;
+
 
 
 }
