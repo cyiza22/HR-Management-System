@@ -26,6 +26,7 @@ public class Attendance {
     @JsonBackReference
     private Employee employee;
 
+    @Column(nullable = false)
     private LocalDate date;
 
     private LocalDateTime checkIn;

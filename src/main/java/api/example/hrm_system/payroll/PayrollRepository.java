@@ -12,11 +12,9 @@ import java.util.Optional;
 @Repository
 public interface PayrollRepository extends JpaRepository<Payroll, Long> {
 
-    Optional<Payroll> findByEmployeeName(String employeeName);
-
     List<Payroll> findByStatus(Payroll.PayrollStatus status);
 
-    @Query("SELECT p FROM Payroll p WHERE LOWER(p.employeeName) LIKE LOWER(CONCAT('%', :name, '%'))")
+    @Query("SELECT p FROM Payroll p WHERE LOWER(CONCAT(p.employee.firstName, ' ', p.employee.lastName)) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Payroll> findByEmployeeNameContainingIgnoreCase(@Param("name") String name);
 
     long countByStatus(Payroll.PayrollStatus status);
@@ -30,10 +28,13 @@ public interface PayrollRepository extends JpaRepository<Payroll, Long> {
     @Query("SELECT p FROM Payroll p WHERE p.salaryPerMonth BETWEEN :minSalary AND :maxSalary")
     List<Payroll> findBySalaryPerMonthBetween(@Param("minSalary") BigDecimal minSalary, @Param("maxSalary") BigDecimal maxSalary);
 
+    @Query("SELECT p FROM Payroll p ORDER BY p.employee.firstName ASC, p.employee.lastName ASC")
     List<Payroll> findAllByOrderByEmployeeNameAsc();
 
+    @Query("SELECT p FROM Payroll p ORDER BY p.ctc DESC")
     List<Payroll> findAllByOrderByCtcDesc();
 
+    @Query("SELECT p FROM Payroll p ORDER BY p.salaryPerMonth DESC")
     List<Payroll> findAllByOrderBySalaryPerMonthDesc();
 
     @Query("SELECT SUM(p.ctc) FROM Payroll p")
@@ -51,13 +52,11 @@ public interface PayrollRepository extends JpaRepository<Payroll, Long> {
     @Query("SELECT AVG(p.salaryPerMonth) FROM Payroll p")
     BigDecimal getAverageSalaryPerMonth();
 
-    @Query("SELECT p FROM Payroll p ORDER BY p.ctc DESC LIMIT :limit")
+    @Query("SELECT p FROM Payroll p ORDER BY p.ctc DESC")
     List<Payroll> findTopEmployeesByCtc(@Param("limit") int limit);
 
     @Query("SELECT p FROM Payroll p WHERE p.deduction = 0 OR p.deduction IS NULL")
     List<Payroll> findEmployeesWithoutDeductions();
-
-    boolean existsByEmployeeName(String employeeName);
 
     @Query("SELECT p FROM Payroll p WHERE p.createdAt BETWEEN :startDate AND :endDate")
     List<Payroll> findByCreatedAtBetween(@Param("startDate") java.time.LocalDateTime startDate,

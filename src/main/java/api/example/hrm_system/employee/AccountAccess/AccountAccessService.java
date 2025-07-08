@@ -3,8 +3,10 @@ package api.example.hrm_system.employee.AccountAccess;
 import api.example.hrm_system.employee.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountAccessService {
@@ -13,10 +15,9 @@ public class AccountAccessService {
     private AccountAccessRepository accountAccessRepository;
 
     public List<AccountAccessDTO> getAllAccountAccess() {
-        return accountAccessRepository.findAll()
-                .stream()
+        return accountAccessRepository.findAll().stream()
                 .map(this::convertToDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public Optional<AccountAccessDTO> getAccountAccessById(Long id) {
@@ -45,17 +46,18 @@ public class AccountAccessService {
     }
 
     public AccountAccessDTO createAccountAccess(AccountAccessDTO accountAccessDTO) {
-        Employee entity = convertToEntity(accountAccessDTO);
-        Employee savedEntity = accountAccessRepository.save(entity);
-        return convertToDTO(savedEntity);
+        Employee employee = new Employee();
+        updateEmployeeFromDTO(employee, accountAccessDTO);
+        Employee savedEmployee = accountAccessRepository.save(employee);
+        return convertToDTO(savedEmployee);
     }
 
     public Optional<AccountAccessDTO> updateAccountAccess(Long id, AccountAccessDTO accountAccessDTO) {
         return accountAccessRepository.findById(id)
-                .map(existingEntity -> {
-                    updateEntityFromDTO(existingEntity, accountAccessDTO);
-                    Employee updatedEntity = accountAccessRepository.save(existingEntity);
-                    return convertToDTO(updatedEntity);
+                .map(existingEmployee -> {
+                    updateEmployeeFromDTO(existingEmployee, accountAccessDTO);
+                    Employee updatedEmployee = accountAccessRepository.save(existingEmployee);
+                    return convertToDTO(updatedEmployee);
                 });
     }
 
@@ -83,28 +85,20 @@ public class AccountAccessService {
         return accountAccessRepository.existsBySkypeId(skypeId);
     }
 
-    private AccountAccessDTO convertToDTO(Employee entity) {
+    private AccountAccessDTO convertToDTO(Employee employee) {
         AccountAccessDTO dto = new AccountAccessDTO();
-        dto.setSlackId(entity.getSlackId());
-        dto.setGithubId(entity.getGithubId());
-        dto.setSkypeId(entity.getSkypeId());
-        dto.setEmail(entity.getEmail());
+        dto.setEmployeeId(employee.getId());
+        dto.setSlackId(employee.getSlackId());
+        dto.setGithubId(employee.getGithubId());
+        dto.setSkypeId(employee.getSkypeId());
+        dto.setEmail(employee.getEmail());
         return dto;
     }
 
-    private Employee convertToEntity(AccountAccessDTO dto) {
-        Employee entity = new Employee();
-        entity.setSlackId(dto.getSlackId());
-        entity.setGithubId(dto.getGithubId());
-        entity.setSkypeId(dto.getSkypeId());
-        entity.setEmail(dto.getEmail());
-        return entity;
-    }
-
-    private void updateEntityFromDTO(Employee entity, AccountAccessDTO dto) {
-        entity.setSlackId(dto.getSlackId());
-        entity.setGithubId(dto.getGithubId());
-        entity.setSkypeId(dto.getSkypeId());
-        entity.setEmail(dto.getEmail());
+    private void updateEmployeeFromDTO(Employee employee, AccountAccessDTO dto) {
+        employee.setSlackId(dto.getSlackId());
+        employee.setGithubId(dto.getGithubId());
+        employee.setSkypeId(dto.getSkypeId());
+        employee.setEmail(dto.getEmail());
     }
 }

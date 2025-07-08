@@ -1,6 +1,7 @@
 package api.example.hrm_system.Document;
 
 import api.example.hrm_system.employee.Employee;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,22 +13,26 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "document")
+@Table(name = "documents")
 public class Document {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String name;
-    private String url; // Cloudinary URL
+    private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
+    @JsonBackReference
     private Employee owner;
 
     private String publicId;
-
-
     private LocalDateTime uploadedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.uploadedAt = LocalDateTime.now();
+    }
 }

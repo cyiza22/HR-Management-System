@@ -18,7 +18,9 @@ public class PayrollDTO {
 
     private Long id;
 
-    @NotBlank(message = "Employee name is required")
+    @NotNull(message = "Employee ID is required")
+    private Long employeeId;
+
     private String employeeName;
 
     @NotNull(message = "CTC is required")
@@ -40,6 +42,4 @@ public class PayrollDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
-
 }

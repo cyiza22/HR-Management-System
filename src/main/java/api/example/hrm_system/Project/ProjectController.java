@@ -1,6 +1,6 @@
 package api.example.hrm_system.Project;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,37 +12,39 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @Autowired
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
 
-    @PostMapping("/new")
-    public ResponseEntity<Project> createProject(@RequestBody ProjectDTO dto) {
+    @PostMapping
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO dto) {
         return ResponseEntity.ok(projectService.createProject(dto));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Project>> getAllProjects() {
+    @GetMapping
+    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Integer id) {
+    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Integer id) {
         return ResponseEntity.ok(projectService.getProjectById(id));
     }
 
-    @GetMapping("/employee")
-    public ResponseEntity<List<Project>> getProjectsByEmployee(@RequestParam Long employeeId) {
+    @GetMapping("/employee/{employeeId}")
+    public ResponseEntity<List<ProjectDTO>> getProjectsByEmployee(@PathVariable Long employeeId) {
         return ResponseEntity.ok(projectService.getProjectsByEmployeeId(employeeId));
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Project> updateProject(@RequestBody Project project, @RequestParam Integer id) {
-        return ResponseEntity.ok(projectService.updateProject(project, id));
+    @PutMapping("/{id}")
+    public ResponseEntity<ProjectDTO> updateProject(
+            @PathVariable Integer id,
+            @Valid @RequestBody ProjectDTO dto) {
+        dto.setId(id);
+        return ResponseEntity.ok(projectService.updateProject(dto, id));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Integer id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();

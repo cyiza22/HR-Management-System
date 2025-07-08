@@ -1,5 +1,6 @@
 package api.example.hrm_system.job;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class JobController {
         this.jobService = jobService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<JobDTO>> getAllJobs() {
         return ResponseEntity.ok(jobService.getAllJobs());
     }
@@ -25,14 +26,14 @@ public class JobController {
     @GetMapping("/{id}")
     public ResponseEntity<JobDTO> getJobById(@PathVariable Long id) {
         return jobService.getJobById(id)
-                .map(dto -> ResponseEntity.ok(dto))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/by-title")
     public ResponseEntity<JobDTO> getJobByTitle(@RequestParam String jobTitle) {
         return jobService.getJobByTitle(jobTitle)
-                .map(dto -> ResponseEntity.ok(dto))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -65,7 +66,11 @@ public class JobController {
     public ResponseEntity<List<JobDTO>> getJobsBySalaryRange(
             @RequestParam BigDecimal minSalary,
             @RequestParam BigDecimal maxSalary) {
-        return ResponseEntity.ok(jobService.getJobsBySalaryRange(minSalary, maxSalary));
+        try {
+            return ResponseEntity.ok(jobService.getJobsBySalaryRange(minSalary, maxSalary));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/search")
@@ -73,19 +78,27 @@ public class JobController {
         return ResponseEntity.ok(jobService.searchJobsByTitle(title));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<JobDTO> createJob(@RequestBody Job job) {
-        JobDTO createdJob = jobService.createJob(job);
-        return new ResponseEntity<>(createdJob, HttpStatus.CREATED);
+    @PostMapping
+    public ResponseEntity<JobDTO> createJob(@Valid @RequestBody JobDTO jobDTO) {
+        try {
+            JobDTO createdJob = jobService.createJob(jobDTO);
+            return new ResponseEntity<>(createdJob, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<JobDTO> updateJob(
             @PathVariable Long id,
-            @RequestBody Job jobDetails) {
-        return jobService.updateJob(id, jobDetails)
-                .map(dto -> ResponseEntity.ok(dto))
-                .orElse(ResponseEntity.notFound().build());
+            @Valid @RequestBody JobDTO jobDTO) {
+        try {
+            return jobService.updateJob(id, jobDTO)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @DeleteMapping("/{id}")

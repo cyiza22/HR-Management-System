@@ -1,8 +1,12 @@
 package api.example.hrm_system.payroll;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @RestController
@@ -16,7 +20,7 @@ public class PayrollController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PayrollDTO> createPayroll(@RequestBody PayrollDTO dto) {
+    public ResponseEntity<PayrollDTO> createPayroll(@Valid @RequestBody PayrollDTO dto) {
         return ResponseEntity.ok(payrollService.createPayroll(dto));
     }
 
@@ -51,7 +55,7 @@ public class PayrollController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<PayrollDTO> update(@PathVariable Long id, @RequestBody PayrollDTO dto) {
+    public ResponseEntity<PayrollDTO> update(@PathVariable Long id, @Valid @RequestBody PayrollDTO dto) {
         return ResponseEntity.ok(payrollService.updatePayroll(id, dto));
     }
 
@@ -60,5 +64,18 @@ public class PayrollController {
         payrollService.deletePayroll(id);
         return ResponseEntity.noContent().build();
     }
-}
 
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportPayrollToPdf() {
+        byte[] pdfBytes = payrollService.exportPayrollToPdf();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=payroll-report.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+}

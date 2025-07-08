@@ -2,6 +2,7 @@ package api.example.hrm_system.employee.AccountAccess;
 
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,8 +13,11 @@ import java.util.Optional;
 @RequestMapping("/api/account-access")
 public class AccountAccessController {
 
-
+    @Autowired
     private AccountAccessService accountAccessService;
+    public AccountAccessController(AccountAccessService accountAccessService) {
+        this.accountAccessService = accountAccessService;
+    }
 
     @GetMapping
     public ResponseEntity<List<AccountAccessDTO>> getAllAccountAccess() {

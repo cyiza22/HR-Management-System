@@ -1,7 +1,10 @@
 package api.example.hrm_system.employee.ProfessionalInfo;
 
+import aj.org.objectweb.asm.commons.Remapper;
+import api.example.hrm_system.department.DepartmentRepository;
 import api.example.hrm_system.employee.Employee;
 import api.example.hrm_system.department.Department;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -12,6 +15,8 @@ public class ProfessionalInfoService {
 
     @Autowired
     private ProfessionalInfoRepository professionalInfoRepository;
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     public List<ProfessionalInfoDTO> getAllProfessionalInfo() {
         return professionalInfoRepository.findAll()
@@ -95,13 +100,36 @@ public class ProfessionalInfoService {
         return convertToDTO(savedEntity);
     }
 
-    public Optional<ProfessionalInfoDTO> updateProfessionalInfo(Long id, ProfessionalInfoDTO professionalInfoDTO) {
-        return professionalInfoRepository.findById(id)
-                .map(existingEntity -> {
-                    updateEntityFromDTO(existingEntity, professionalInfoDTO);
-                    Employee updatedEntity = professionalInfoRepository.save(existingEntity);
-                    return convertToDTO(updatedEntity);
-                });
+    private void updateEntityFromDTO(Employee entity, ProfessionalInfoDTO dto) {
+        if (dto.getEmployeeId() != null) {
+            entity.setEmployeeId(dto.getEmployeeId());
+        }
+        if (dto.getUsername() != null) {
+            entity.setUsername(dto.getUsername());
+        }
+        if (dto.getEmail() != null) {
+            entity.setEmail(dto.getEmail());
+        }
+        if (dto.getEmployeeType() != null) {
+            entity.setEmployeeType(dto.getEmployeeType());
+        }
+        if (dto.getDepartment() != null) {
+            Department department = departmentRepository.findByDepartmentName(dto.getDepartment())
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
+            entity.setDepartment(department);
+        }
+        if (dto.getDesignation() != null) {
+            entity.setDesignation(dto.getDesignation());
+        }
+        if (dto.getWorkingDays() != null) {
+            entity.setWorkingDays(dto.getWorkingDays());
+        }
+        if (dto.getJoiningDate() != null) {
+            entity.setJoiningDate(dto.getJoiningDate());
+        }
+        if (dto.getOfficeLocation() != null) {
+            entity.setOfficeLocation(dto.getOfficeLocation());
+        }
     }
 
     public boolean deleteProfessionalInfo(Long id) {
@@ -136,6 +164,15 @@ public class ProfessionalInfoService {
         return professionalInfoRepository.countByOfficeLocation(officeLocation);
     }
 
+    public Optional<ProfessionalInfoDTO> updateProfessionalInfo(Long id, ProfessionalInfoDTO dto) {
+        return professionalInfoRepository.findById(id)
+                .map(existingEmployee -> {
+                    updateEntityFromDTO(existingEmployee, dto);
+                    Employee updatedEmployee = professionalInfoRepository.save(existingEmployee);
+                    return convertToDTO(updatedEmployee);
+                });
+    }
+
     private ProfessionalInfoDTO convertToDTO(Employee entity) {
         ProfessionalInfoDTO dto = new ProfessionalInfoDTO();
         dto.setEmployeeId(entity.getEmployeeId());
@@ -148,13 +185,10 @@ public class ProfessionalInfoService {
         }
 
         dto.setDesignation(entity.getDesignation());
-
-        if (entity.getWorkingDays() != null) {
-            dto.setWorkingDays(entity.getWorkingDays().toString());
-        }
-
+        dto.setWorkingDays(entity.getWorkingDays()); // Direct assignment now
         dto.setJoiningDate(entity.getJoiningDate());
         dto.setOfficeLocation(entity.getOfficeLocation());
+
         return dto;
     }
 
@@ -172,36 +206,13 @@ public class ProfessionalInfoService {
         }
 
         entity.setDesignation(dto.getDesignation());
-
-        if (dto.getWorkingDays() != null) {
-            entity.setWorkingDays(Integer.parseInt(dto.getWorkingDays()));
-        }
-
+        entity.setWorkingDays(dto.getWorkingDays()); // Direct assignment now
         entity.setJoiningDate(dto.getJoiningDate());
         entity.setOfficeLocation(dto.getOfficeLocation());
+
         return entity;
     }
 
-    private void updateEntityFromDTO(Employee entity, ProfessionalInfoDTO dto) {
-        entity.setEmployeeId(dto.getEmployeeId());
-        entity.setUsername(dto.getUsername());
-        entity.setEmail(dto.getEmail());
-        entity.setEmployeeType(dto.getEmployeeType());
 
-        if (dto.getDepartment() != null) {
-            if (entity.getDepartment() == null) {
-                entity.setDepartment(new Department());
-            }
-            entity.getDepartment().setDepartmentName(dto.getDepartment());
-        }
-
-        entity.setDesignation(dto.getDesignation());
-
-        if (dto.getWorkingDays() != null) {
-            entity.setWorkingDays(Integer.parseInt(dto.getWorkingDays()));
-        }
-
-        entity.setJoiningDate(dto.getJoiningDate());
-        entity.setOfficeLocation(dto.getOfficeLocation());
-    }
 }
+

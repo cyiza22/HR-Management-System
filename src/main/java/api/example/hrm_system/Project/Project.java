@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "project")
+@Table(name = "projects")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,20 +19,25 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private LocalDate startDate;
+
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ProjectStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee assignedTo;
 
     public enum ProjectStatus {
         Completed,
         InProcess,
         NotStarted
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee")
-    private Employee assignedTo;
 }

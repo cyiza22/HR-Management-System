@@ -3,12 +3,11 @@ package api.example.hrm_system.Candidate;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "candidate")
+@Table(name = "candidates")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -27,10 +26,8 @@ public class Candidate {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
 
-    private LocalDateTime applyDate;;
+    private LocalDateTime applyDate;
     private LocalDateTime updatedAt;
-
-
 
     public enum ApplicationStatus {
         Applied,
@@ -39,5 +36,14 @@ public class Candidate {
         Rejected
     }
 
+    @PrePersist
+    protected void onCreate() {
+        this.applyDate = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

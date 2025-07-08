@@ -1,18 +1,18 @@
 package api.example.hrm_system.employee.EmployeeDashboard;
 
 import api.example.hrm_system.employee.Employee;
+import api.example.hrm_system.employee.EmployeeRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EmployeeDashboardRepository extends JpaRepository<Employee, Long> {
-
-    Optional<Employee> findByFirstNameAndLastName(String firstName, String lastName);
+public interface EmployeeDashboardRepository extends EmployeeRepository {
 
     @Query("SELECT e FROM Employee e WHERE LOWER(e.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))")
     List<Employee> findByFirstNameContainingIgnoreCase(@Param("firstName") String firstName);
@@ -22,8 +22,6 @@ public interface EmployeeDashboardRepository extends JpaRepository<Employee, Lon
 
     @Query("SELECT e FROM Employee e WHERE LOWER(CONCAT(e.firstName, ' ', e.lastName)) LIKE LOWER(CONCAT('%', :fullName, '%'))")
     List<Employee> findByFullNameContainingIgnoreCase(@Param("fullName") String fullName);
-
-    Optional<Employee> findByEmployeeId(String employeeId);
 
 
     @Query("SELECT e FROM Employee e JOIN e.department d WHERE d.departmentName = :departmentName")
@@ -60,4 +58,6 @@ public interface EmployeeDashboardRepository extends JpaRepository<Employee, Lon
     long countByStatus(String status);
 
     long countByEmployeeType(String employeeType);
+
+
 }

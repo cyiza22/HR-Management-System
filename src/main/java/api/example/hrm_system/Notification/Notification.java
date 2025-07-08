@@ -12,17 +12,28 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "notification")
+@Table(name = "notifications")
 public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String message;
+
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "employee_id", nullable = false)
     private Employee recipient;
+
+    @Column
+    private boolean isRead = false;
+
+    @PrePersist
+    protected void onCreate() {
+        this.timestamp = LocalDateTime.now();
+    }
 }

@@ -1,6 +1,8 @@
 package api.example.hrm_system.payroll;
 
+import api.example.hrm_system.employee.Employee;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,8 +23,9 @@ public class Payroll {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "employee_name", nullable = false)
-    private String employeeName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
     @Column(name = "ctc", nullable = false, precision = 10, scale = 2)
     private BigDecimal ctc;
@@ -44,6 +47,7 @@ public class Payroll {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
 
 
     public enum PayrollStatus {

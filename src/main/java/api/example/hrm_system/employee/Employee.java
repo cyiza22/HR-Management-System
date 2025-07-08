@@ -2,6 +2,7 @@ package api.example.hrm_system.employee;
 
 import api.example.hrm_system.Document.Document;
 import api.example.hrm_system.Leave.Leave;
+import api.example.hrm_system.Notification.Notification;
 import api.example.hrm_system.Project.Project;
 import api.example.hrm_system.attendance.Attendance;
 import api.example.hrm_system.department.Department;
@@ -13,7 +14,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.catalina.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.List;
 @Table(name = "employees")
 public class Employee {
     @Id
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
@@ -40,7 +40,6 @@ public class Employee {
     @NotBlank(message = "Email is required")
     @Column(unique = true)
     private String email;
-
 
     private String mobileNumber;
     private LocalDate dateOfBirth;
@@ -57,23 +56,16 @@ public class Employee {
     private String username;
 
     private String designation;
-
-
-    private String employeeType; // Office, Remote
-
+    private String employeeType;
     private LocalDate joiningDate;
-
     private Integer workingDays;
     private String officeLocation;
-    private String status; // Permanent, Contract, etc.
-
-
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager")
-    @JsonManagedReference
+    @JoinColumn(name = "department_id")
+    @JsonBackReference
     private Department department;
-
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -92,5 +84,7 @@ public class Employee {
     private List<Document> documents;
 
 
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Notification> notifications;
 
 }

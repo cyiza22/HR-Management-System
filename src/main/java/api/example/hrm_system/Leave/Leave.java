@@ -13,30 +13,49 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "leave")
+@Table(name = "leaves") // Changed from "leave" which is a SQL keyword
 public class Leave {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer leaveId;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee")
+    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
+    @Column(nullable = false)
     private LocalDate startDate;
+
+    @Column(nullable = false)
     private LocalDate endDate;
+
+    @Column(nullable = false)
     private String reason;
 
     @Enumerated(EnumType.STRING)
-    private LeaveStatus status;
+    @Column(nullable = false)
+    private LeaveStatus status = LeaveStatus.Pending;
 
+    @Column(updatable = false)
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 
     public enum LeaveStatus {
         Pending,
         Approved,
         Rejected
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

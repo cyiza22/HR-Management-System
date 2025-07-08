@@ -2,6 +2,7 @@ package api.example.hrm_system.employee.PersonalInfo;
 
 
 import api.example.hrm_system.employee.Employee;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,8 +12,12 @@ import java.util.stream.Collectors;
 @Service
 public class PersonalInfoService {
 
-
+    @Autowired
     private PersonalInfoRepository personalInfoRepository;
+    public PersonalInfoService(PersonalInfoRepository personalInfoRepository) {
+        this.personalInfoRepository = personalInfoRepository;
+    }
+
 
     public PersonalInfoDTO savePersonalInfo(PersonalInfoDTO personalInfoDto) {
         Employee employee = convertToEntity(personalInfoDto);

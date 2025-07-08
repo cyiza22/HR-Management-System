@@ -2,7 +2,9 @@ package api.example.hrm_system.job;
 
 import api.example.hrm_system.department.Department;
 import api.example.hrm_system.department.DepartmentRepository;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -67,6 +69,9 @@ public class JobService {
     }
 
     public List<JobDTO> getJobsBySalaryRange(BigDecimal minSalary, BigDecimal maxSalary) {
+        if (minSalary == null || maxSalary == null || minSalary.compareTo(maxSalary) > 0) {
+            throw new IllegalArgumentException("Invalid salary range");
+        }
         return jobRepository.findBySalaryBetween(minSalary, maxSalary).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -78,17 +83,27 @@ public class JobService {
                 .collect(Collectors.toList());
     }
 
-    public JobDTO createJob(Job job) {
+    @Transactional
+    public JobDTO createJob(JobDTO jobDTO) {
+        Job job = mapToEntity(jobDTO);
         Job savedJob = jobRepository.save(job);
         return mapToDTO(savedJob);
     }
 
-    public Optional<JobDTO> updateJob(Long id, Job jobDetails) {
+    @Transactional
+    public Optional<JobDTO> updateJob(Long id, @Valid JobDTO jobDetails) {
         return jobRepository.findById(id)
                 .map(job -> {
                     job.setJobTitle(jobDetails.getJobTitle());
                     job.setJobDescription(jobDetails.getJobDescription());
-                    job.setDepartment(jobDetails.getDepartment());
+
+                    if (jobDetails.getDepartmentName() != null &&
+                            !jobDetails.getDepartmentName().isEmpty()) {
+                        Department department = departmentRepository.findByDepartmentName(jobDetails.getDepartmentName())
+                                .orElseThrow(() -> new IllegalArgumentException("Department not found"));
+                        job.setDepartment(department);
+                    }
+
                     job.setLocation(jobDetails.getLocation());
                     job.setSalary(jobDetails.getSalary());
                     job.setJobType(jobDetails.getJobType());
@@ -98,12 +113,31 @@ public class JobService {
                 });
     }
 
+    @Transactional
     public boolean deleteJob(Long id) {
         if (jobRepository.existsById(id)) {
             jobRepository.deleteById(id);
             return true;
         }
         return false;
+    }
+
+    private Job mapToEntity(JobDTO dto) {
+        Job job = new Job();
+        job.setJobTitle(dto.getJobTitle());
+        job.setJobDescription(dto.getJobDescription());
+        job.setLocation(dto.getLocation());
+        job.setSalary(dto.getSalary());
+        job.setJobType(dto.getJobType());
+        job.setStatus(dto.getStatus());
+
+        if (dto.getDepartmentName() != null && !dto.getDepartmentName().isEmpty()) {
+            Department department = departmentRepository.findByDepartmentName(dto.getDepartmentName())
+                    .orElseThrow(() -> new IllegalArgumentException("Department not found"));
+            job.setDepartment(department);
+        }
+
+        return job;
     }
 
     private JobDTO mapToDTO(Job job) {
@@ -118,7 +152,6 @@ public class JobService {
         dto.setCreatedAt(job.getCreatedAt());
         dto.setUpdatedAt(job.getUpdatedAt());
 
-        // Set department name if department exists
         if (job.getDepartment() != null) {
             dto.setDepartmentName(job.getDepartment().getDepartmentName());
         }

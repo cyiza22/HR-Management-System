@@ -16,7 +16,7 @@ public class EmployeeDashboardService {
 
     private final EmployeeDashboardRepository employeeDashboardRepository;
 
-    // Inject repository via constructor
+
     public EmployeeDashboardService(EmployeeDashboardRepository employeeDashboardRepository) {
         this.employeeDashboardRepository = employeeDashboardRepository;
     }
@@ -126,7 +126,10 @@ public class EmployeeDashboardService {
         return employeeDashboardRepository.count();
     }
 
+    // Update convertToDto method with null checks
     private EmployeeDashboardDTO convertToDto(Employee employee) {
+        if (employee == null) return null;
+
         EmployeeDashboardDTO dto = new EmployeeDashboardDTO();
         dto.setId(employee.getId());
         dto.setEmployeeId(employee.getEmployeeId());
@@ -135,10 +138,15 @@ public class EmployeeDashboardService {
         dto.setFullName(employee.getFirstName() + " " + employee.getLastName());
         dto.setEmail(employee.getEmail());
         dto.setMobileNumber(employee.getMobileNumber());
-        dto.setDepartment(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null);
+
+        if (employee.getDepartment() != null) {
+            dto.setDepartment(employee.getDepartment().getDepartmentName());
+        }
+
         dto.setDesignation(employee.getDesignation());
         dto.setEmployeeType(employee.getEmployeeType());
         dto.setStatus(employee.getStatus());
+
         return dto;
     }
 }
