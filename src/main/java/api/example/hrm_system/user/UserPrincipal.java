@@ -1,26 +1,28 @@
 package api.example.hrm_system.user;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public class UserPrincipal implements UserDetails {
 
     private final User user;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(User user) {
         this.user = user;
-    }
-
-    public User getUser() {
-        return user;
+        this.authorities = user.getRole() != null ?
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())) :
+                Collections.emptyList();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // You can add roles/authorities if needed
+        return authorities;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // We use email as username
+        return user.getEmail();
     }
 
     @Override
