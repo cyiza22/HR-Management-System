@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>API.example</groupId>
-    <artifactId>HRM_System</artifactId>
+    <artifactId>hrms</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>hrms</name>
     <description>HRM_System</description>
