@@ -35,8 +35,8 @@ jobs:
       - name: Save build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HRM_System
-          path: target/HRM_System*.jar  # Use a wildcard to match the JAR file
+          name: hrms
+          path: target/hrms*.jar  # Use a wildcard to match the JAR file
 
   docker:
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: HRM_System
+          name: hrms
           path: target
 
       - name: Login into GHCR

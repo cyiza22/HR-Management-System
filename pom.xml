@@ -11,7 +11,7 @@
     <groupId>API.example</groupId>
     <artifactId>HRM_System</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>HRM_System</name>
+    <name>hrms</name>
     <description>HRM_System</description>
     <url/>
     <licenses>
