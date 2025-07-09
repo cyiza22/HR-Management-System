@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: HRM_System
-          path: target/HR-Management-System*.jar  # Use a wildcard to match the JAR file
+          path: target/HRM_System*.jar  # Use a wildcard to match the JAR file
 
   docker:
     runs-on: ubuntu-latest
@@ -68,5 +68,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/HR-Management-Syste:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/HR-Management-System:latest
             ${{ secrets.DOCKER_HUB_USERNAME }}/HR-Management-System:${{ github.sha }}
