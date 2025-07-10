@@ -61,6 +61,15 @@ public class AccountAccessService {
                 });
     }
 
+    public Optional<AccountAccessDTO> updateAccountAccessByEmail(String email, AccountAccessDTO dto) {
+        return accountAccessRepository.findByEmail(email)
+                .map(existingEmployee -> {
+                    updateEmployeeFromDTO(existingEmployee, dto);
+                    Employee updatedEmployee = accountAccessRepository.save(existingEmployee);
+                    return convertToDTO(updatedEmployee);
+                });
+    }
+
     public boolean deleteAccountAccess(Long id) {
         if (accountAccessRepository.existsById(id)) {
             accountAccessRepository.deleteById(id);

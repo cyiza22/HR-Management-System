@@ -9,9 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -20,48 +22,39 @@ public class AuthService {
     private final EmailService emailService;
     private final OtpService otpService;
 
-    // Register a new user and send OTP
     public User register(RegisterRequest request) {
-        if (!request.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("Passwords do not match");
-        }
-
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new IllegalStateException("Email already exists");
         }
 
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.EMPLOYEE); // default role
+        user.setRole(request.getRole() != null ? request.getRole() : Role.EMPLOYEE);
 
-        String otp = otpService.generateOtp(); //use OtpService
+        String otp = otpService.generateOtp();
         user.setOtp(otp);
         user.setVerified(false);
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         emailService.sendOtpEmail(user.getEmail(), otp);
-
-        return user;
+        return savedUser;
     }
 
-    // Verify the OTP
     public String verifyOtp(String email, String otp) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (otpService.verifyOtp(user.getOtp(), otp)) { // use OtpService
+        if (otpService.verifyOtp(user.getOtp(), otp)) {
             user.setVerified(true);
-            user.setOtp(null); // clear OTP after success
+            user.setOtp(null);
             userRepository.save(user);
             return "OTP verified successfully.";
-        } else {
-            return "Invalid OTP.";
         }
+        return "Invalid OTP.";
     }
 
-    // Login
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -74,38 +67,50 @@ public class AuthService {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
-        return new LoginResponse(token, "Login successful");
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        return new LoginResponse("Login successful", token, user.getRole());
     }
 
-    // Forgot password - send OTP
     public String sendForgotOtp(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String otp = otpService.generateOtp(); //use OtpService
+        String otp = otpService.generateOtp();
         user.setOtp(otp);
-        user.setVerified(false); // temporarily unverified for reset
+        user.setVerified(false);
         userRepository.save(user);
 
         emailService.sendOtpEmail(user.getEmail(), otp);
         return "OTP sent to your email for password reset.";
     }
 
-    //Reset password using OTP
     public String resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!otpService.verifyOtp(user.getOtp(), request.getOtp())) { // use OtpService
+        if (!otpService.verifyOtp(user.getOtp(), request.getOtp())) {
             return "Invalid OTP.";
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setOtp(null); // clear OTP
+        user.setOtp(null);
         user.setVerified(true);
         userRepository.save(user);
-
         return "Password reset successfully.";
+    }
+
+    public String verifyOtpAndSetPassword(VerifyOtpRequest verifyOtpRequest, String newPassword) {
+        User user = userRepository.findByEmail(verifyOtpRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!otpService.verifyOtp(user.getOtp(), verifyOtpRequest.getOtp())) {
+            return "Invalid OTP.";
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setOtp(null);
+        user.setVerified(true);
+        userRepository.save(user);
+        return "Password set successfully.";
     }
 }

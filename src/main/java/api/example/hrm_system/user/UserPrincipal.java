@@ -6,23 +6,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class UserPrincipal implements UserDetails {
 
     private final User user;
-    private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(User user) {
         this.user = user;
-        this.authorities = user.getRole() != null ?
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())) :
-                Collections.emptyList();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        // Convert user role to Spring Security GrantedAuthority
+        return Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+        );
     }
 
     @Override
@@ -36,14 +34,27 @@ public class UserPrincipal implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true; // Modify as needed
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true; // Modify as needed
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true; // Modify as needed
+    }
 
     @Override
-    public boolean isEnabled() { return user.isVerified(); }
+    public boolean isEnabled() {
+        return user.isVerified(); // Use your verified status
+    }
+
+    // Helper method to get the actual user entity
+    public User getUser() {
+        return user;
+    }
 }

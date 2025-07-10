@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface PayrollRepository extends JpaRepository<Payroll, Long> {
@@ -61,4 +60,7 @@ public interface PayrollRepository extends JpaRepository<Payroll, Long> {
     @Query("SELECT p FROM Payroll p WHERE p.createdAt BETWEEN :startDate AND :endDate")
     List<Payroll> findByCreatedAtBetween(@Param("startDate") java.time.LocalDateTime startDate,
                                          @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT p FROM Payroll p WHERE p.employee.id = :id")
+    List<Payroll> findByEmployeeId(@Param("id") Long id);
 }

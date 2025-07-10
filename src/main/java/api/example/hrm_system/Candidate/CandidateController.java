@@ -1,52 +1,45 @@
 package api.example.hrm_system.Candidate;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/candidate")
+@RequestMapping("/api/candidates")
+@RequiredArgsConstructor
 public class CandidateController {
 
     private final CandidateService candidateService;
 
-    @Autowired
-    public CandidateController(CandidateService candidateService) {
-        this.candidateService = candidateService;
-    }
-
-    @PostMapping("/new")
-    public ResponseEntity<Candidate> create(@RequestBody CandidateDTO dto) {
+    // HR-only endpoints
+    @PostMapping
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<Candidate> createCandidate(@RequestBody CandidateDTO dto) {
         return ResponseEntity.ok(candidateService.create(dto));
     }
 
-    @GetMapping("/getall")
-    public ResponseEntity<List<Candidate>> findAll() {
-        return ResponseEntity.ok(candidateService.findAll());
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<Candidate> updateCandidate(
+            @PathVariable Long id,
+            @RequestBody CandidateDTO dto) {
+        return ResponseEntity.ok(candidateService.update(dto, id));
     }
 
-    @GetMapping("/id")
-    public ResponseEntity<Candidate> findById(@RequestParam Long id) {
-        return ResponseEntity.ok(candidateService.findById(id));
-    }
-
-    @GetMapping("/name")
-    public ResponseEntity<List<Candidate>> findByName(@RequestParam String name) {
-        return ResponseEntity.ok(candidateService.findByName(name));
-    }
-
-    @PutMapping("/update")
-    public ResponseEntity<Candidate> update(@RequestBody CandidateDTO dto, @RequestParam Long id) {
-        Candidate candidate = candidateService.update(dto, id);
-        return new ResponseEntity<>(candidate, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/delete")
-    public ResponseEntity<Void> delete(@RequestParam Long id) {
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<Void> deleteCandidate(@PathVariable Long id) {
         candidateService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // HR and Manager endpoints
+    @GetMapping
+    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
+    public ResponseEntity<List<Candidate>> getAllCandidates() {
+        return ResponseEntity.ok(candidateService.findAll());
     }
 }

@@ -1,28 +1,35 @@
 package api.example.hrm_system.Holiday;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/holidays")
+@RequiredArgsConstructor
 public class HolidayController {
 
     private final HolidayService holidayService;
-    private final HolidayRepository holidayRepository;
 
-    public HolidayController(HolidayService holidayService, HolidayRepository holidayRepository) {
-        this.holidayService = holidayService;
-        this.holidayRepository = holidayRepository;
-    }
-
-    @PostMapping("/add")
-    public ResponseEntity<Holiday> addHoliday(@RequestBody HolidayDTO dto) {
+    // HR-only endpoints
+    @PostMapping
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<Holiday> createHoliday(@RequestBody HolidayDTO dto) {
         return ResponseEntity.ok(holidayService.addHoliday(dto));
     }
 
-    @GetMapping("/all")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<Void> deleteHoliday(@PathVariable Integer id) {
+        holidayService.deleteHoliday(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Public endpoints (read-only)
+    @GetMapping
     public ResponseEntity<List<Holiday>> getAllHolidays() {
         return ResponseEntity.ok(holidayService.getAllHolidays());
     }
@@ -31,21 +38,4 @@ public class HolidayController {
     public ResponseEntity<List<Holiday>> getUpcomingHolidays() {
         return ResponseEntity.ok(holidayService.getUpcomingHolidays());
     }
-
-    @GetMapping("/past")
-    public ResponseEntity<List<Holiday>> getPastHolidays() {
-        return ResponseEntity.ok(holidayService.getPastHolidays());
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteHoliday(@PathVariable Integer id) {
-        holidayService.deleteHoliday(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<Holiday>> searchHolidays() {
-        return ResponseEntity.ok(holidayService.getUpcomingHolidays());
-    }
-
 }

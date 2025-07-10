@@ -1,85 +1,60 @@
 package api.example.hrm_system.department;
 
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/departments")
+@RequiredArgsConstructor
 public class DepartmentController {
 
     private final DepartmentService departmentService;
 
-    public DepartmentController(DepartmentService departmentService) {
-        this.departmentService = departmentService;
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<DepartmentDTO>> getAllDepartments() {
-        return ResponseEntity.ok(departmentService.getAllDepartments());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<DepartmentDTO> getDepartmentById(@PathVariable Long id) {
-        return departmentService.getDepartmentById(id)
-                .map(dto -> ResponseEntity.ok(dto))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/by-name")
-    public ResponseEntity<DepartmentDTO> getDepartmentByName(@RequestParam String departmentName) {
-        return departmentService.getDepartmentByName(departmentName)
-                .map(dto -> ResponseEntity.ok(dto))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/by-work-type")
-    public ResponseEntity<List<DepartmentDTO>> getDepartmentsByWorkType(@RequestParam Department.WorkType workType) {
-        return ResponseEntity.ok(departmentService.getDepartmentsByWorkType(workType));
-    }
-
-    @GetMapping("/by-employment-status")
-    public ResponseEntity<List<DepartmentDTO>> getDepartmentsByEmploymentStatus(@RequestParam Department.EmploymentStatus employmentStatus) {
-        return ResponseEntity.ok(departmentService.getDepartmentsByEmploymentStatus(employmentStatus));
-    }
-
-    @GetMapping("/by-location")
-    public ResponseEntity<List<DepartmentDTO>> getDepartmentsByLocation(@RequestParam String location) {
-        return ResponseEntity.ok(departmentService.getDepartmentsByLocation(location));
-    }
-
-    @GetMapping("/by-manager/{managerId}")
-    public ResponseEntity<List<DepartmentDTO>> getDepartmentsByManagerId(@PathVariable Long managerId) {
-        return ResponseEntity.ok(departmentService.getDepartmentsByManagerId(managerId));
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<DepartmentDTO>> searchDepartmentsByName(@RequestParam String name) {
-        return ResponseEntity.ok(departmentService.searchDepartmentsByName(name));
-    }
-
-    @PostMapping("/create")
+    // HR-only endpoints
+    @PostMapping
+    @PreAuthorize("hasRole('HR')")
     public ResponseEntity<DepartmentDTO> createDepartment(@RequestBody Department department) {
-        DepartmentDTO createdDepartment = departmentService.createDepartment(department);
-        return new ResponseEntity<>(createdDepartment, HttpStatus.CREATED);
+        return ResponseEntity.ok(departmentService.createDepartment(department));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DepartmentDTO> updateDepartment(
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<Optional<DepartmentDTO>> updateDepartment(
             @PathVariable Long id,
-            @RequestBody Department departmentDetails) {
-        return departmentService.updateDepartment(id, departmentDetails)
-                .map(dto -> ResponseEntity.ok(dto))
-                .orElse(ResponseEntity.notFound().build());
+            @RequestBody Department department) {
+        return ResponseEntity.ok(departmentService.updateDepartment(id, department));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('HR')")
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
-        if (departmentService.deleteDepartment(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        departmentService.deleteDepartment(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Manager and HR endpoints
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    public ResponseEntity<Optional<DepartmentDTO>> getDepartmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(departmentService.getDepartmentById(id));
+    }
+
+    @GetMapping("/my-department")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<DepartmentDTO> getMyDepartment(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(departmentService.getDepartmentByManagerEmail(userDetails.getUsername()));
+    }
+
+    // Public endpoints
+    @GetMapping
+    public ResponseEntity<List<DepartmentDTO>> getAllDepartments() {
+        return ResponseEntity.ok(departmentService.getAllDepartments());
     }
 }

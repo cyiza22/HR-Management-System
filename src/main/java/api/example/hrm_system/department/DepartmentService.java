@@ -69,6 +69,16 @@ public class DepartmentService {
         Department savedDepartment = departmentRepository.save(department);
         return mapToDTO(savedDepartment);
     }
+    public DepartmentDTO getDepartmentByManagerEmail(String username) {
+        Employee manager = employeeDashboardRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("Manager not found with email: " + username));
+        Department department = departmentRepository.findByManagerId(manager.getId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Department not found for manager with email: " + username));
+
+        return mapToDTO(department);
+    }
 
     public Optional<DepartmentDTO> updateDepartment(Long id, Department departmentDetails) {
         return departmentRepository.findById(id)
@@ -116,4 +126,6 @@ public class DepartmentService {
 
         return dto;
     }
+
+
 }
