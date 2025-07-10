@@ -36,6 +36,29 @@ public class PersonalInfoService {
         throw new RuntimeException("Employee not found with id: " + id);
     }
 
+    public PersonalInfoDTO updatePersonalInfoByEmail(String email, PersonalInfoDTO dto) {
+        Optional<Employee> existingEmployee = personalInfoRepository.findByEmail(email);
+        if (existingEmployee.isPresent()) {
+            Employee employee = existingEmployee.get();
+
+            // Update only the fields that are allowed to be updated via personal info
+            employee.setFirstName(dto.getFirstName());
+            employee.setLastName(dto.getLastName());
+            employee.setMobileNumber(dto.getMobileNumber());
+            employee.setDateOfBirth(dto.getDateOfBirth());
+            employee.setGender(dto.getGender());
+            employee.setNationality(dto.getNationality());
+            employee.setMaritalStatus(dto.getMaritalStatus());
+            employee.setAddress(dto.getAddress());
+            employee.setCity(dto.getCity());
+            employee.setState(dto.getState());
+            employee.setZipCode(dto.getZipCode());
+            Employee savedEmployee = personalInfoRepository.save(employee);
+            return convertToDto(savedEmployee);
+        }
+        throw new RuntimeException("Employee not found with email: " + email);
+    }
+
     public PersonalInfoDTO getPersonalInfoById(Long id) {
         Optional<Employee> employee = personalInfoRepository.findById(id);
         if (employee.isPresent()) {
@@ -130,4 +153,5 @@ public class PersonalInfoService {
         employee.setState(dto.getState());
         employee.setZipCode(dto.getZipCode());
     }
+
 }

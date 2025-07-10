@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface LeaveRepository extends JpaRepository<Leave, Integer> {
     List<Leave> findByEmployee_Id(Long employeeId);
+    List<Leave> findByStatus(Leave.LeaveStatus status);
 
     @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END " +
             "FROM Leave l WHERE l.employee.id = :employeeId " +
@@ -21,6 +22,4 @@ public interface LeaveRepository extends JpaRepository<Leave, Integer> {
             Leave.LeaveStatus approved, @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
-
-    List<Leave> findByStatus(Leave.LeaveStatus status);
 }

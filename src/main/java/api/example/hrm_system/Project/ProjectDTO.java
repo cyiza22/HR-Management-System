@@ -23,4 +23,6 @@ public class ProjectDTO {
 
     @NotNull(message = "Employee ID is required")
     private Long employeeId;
+    private String description;
+    private Long departmentId;
 }

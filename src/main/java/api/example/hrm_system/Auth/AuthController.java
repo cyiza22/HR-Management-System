@@ -25,6 +25,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
         }
     }
+
     @Operation(summary = "Verify OTP")
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtp(@RequestBody VerifyOtpRequest request) {
@@ -47,5 +48,14 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(authService.resetPassword(request));
+    }
+
+    @Operation(summary = "Verify OTP and set password")
+    @PostMapping("/verify-otp-and-set-password")
+    public ResponseEntity<String> verifyOtpAndSetPassword(
+            @RequestBody VerifyOtpAndSetPasswordRequest request) {
+        return ResponseEntity.ok(authService.verifyOtpAndSetPassword(
+                new VerifyOtpRequest(request.getEmail(), request.getOtp()),
+                request.getNewPassword()));
     }
 }

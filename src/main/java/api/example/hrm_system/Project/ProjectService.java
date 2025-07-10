@@ -14,12 +14,35 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final EmployeeRepository employeeRepository;
+    private final AssignmentService assignmentService;
 
-    public ProjectService(ProjectRepository projectRepository, EmployeeRepository employeeRepository) {
+    public ProjectService(ProjectRepository projectRepository,
+                          EmployeeRepository employeeRepository,
+                          AssignmentService assignmentService) {
         this.projectRepository = projectRepository;
         this.employeeRepository = employeeRepository;
+        this.assignmentService = assignmentService;
     }
 
+    public List<ProjectDTO> getProjectsByEmployeeEmail(String email) {
+        Employee employee = employeeRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Employee not found with email: " + email));
+
+        return projectRepository.findByAssignedTo_Id(employee.getId()).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProjectDTO> getProjectsByDepartment(Long departmentId) {
+        return projectRepository.findAll().stream()
+                .filter(project -> project.getAssignedTo() != null &&
+                        project.getAssignedTo().getDepartment() != null &&
+                        project.getAssignedTo().getDepartment().getId().equals(departmentId))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Rest of the existing methods remain the same
     @Transactional
     public ProjectDTO createProject(ProjectDTO dto) {
         validateProjectDates(dto.getStartDate(), dto.getEndDate());
@@ -31,7 +54,7 @@ public class ProjectService {
         project.setName(dto.getName());
         project.setStartDate(dto.getStartDate());
         project.setEndDate(dto.getEndDate());
-        project.setStatus(Project.ProjectStatus.valueOf(String.valueOf(dto.getStatus())));
+        project.setStatus(dto.getStatus());
         project.setAssignedTo(employee);
 
         Project savedProject = projectRepository.save(project);
@@ -46,15 +69,6 @@ public class ProjectService {
 
     public List<ProjectDTO> getAllProjects() {
         return projectRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<ProjectDTO> getProjectsByEmployeeId(Long employeeId) {
-        if (!employeeRepository.existsById(employeeId)) {
-            throw new RuntimeException("Employee not found with ID: " + employeeId);
-        }
-        return projectRepository.findByAssignedTo_Id(employeeId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -78,7 +92,7 @@ public class ProjectService {
         project.setName(updated.getName());
         project.setStartDate(updated.getStartDate());
         project.setEndDate(updated.getEndDate());
-        project.setStatus(Project.ProjectStatus.valueOf(String.valueOf(updated.getStatus())));
+        project.setStatus(updated.getStatus());
         project.setAssignedTo(employee);
 
         Project savedProject = projectRepository.save(project);
@@ -93,14 +107,25 @@ public class ProjectService {
         projectRepository.deleteById(id);
     }
 
+    @Transactional
+    public String assignProject(AssignmentDTO assignmentDTO) {
+        return assignmentService.assignProjectToEmployee(assignmentDTO);
+    }
+
     private ProjectDTO convertToDTO(Project project) {
         ProjectDTO dto = new ProjectDTO();
         dto.setId(project.getId());
         dto.setName(project.getName());
         dto.setStartDate(project.getStartDate());
         dto.setEndDate(project.getEndDate());
-        dto.setStatus(Project.ProjectStatus.valueOf(project.getStatus().name()));
+        dto.setStatus(project.getStatus());
         dto.setEmployeeId(project.getAssignedTo().getId());
+
+        // Add department ID if available
+        if (project.getAssignedTo().getDepartment() != null) {
+            dto.setDepartmentId(project.getAssignedTo().getDepartment().getId());
+        }
+
         return dto;
     }
 }

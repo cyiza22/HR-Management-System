@@ -122,6 +122,12 @@ public class EmployeeDashboardService {
         return employeeDashboardRepository.countByEmployeeType(employeeType);
     }
 
+    public EmployeeDashboardDTO getEmployeeByEmail(String email) {
+        return employeeDashboardRepository.findByEmail(email)
+                .map(this::convertToDto)
+                .orElseThrow(() -> new RuntimeException("Employee not found with email: " + email));
+    }
+
     public long getTotalEmployeeCount() {
         return employeeDashboardRepository.count();
     }
