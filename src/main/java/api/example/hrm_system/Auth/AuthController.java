@@ -1,9 +1,7 @@
 package api.example.hrm_system.Auth;
 
-import api.example.hrm_system.DTOs.*;
-import api.example.hrm_system.user.User;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import api.example.hrm_system.DTOs.LoginRequest;
+import api.example.hrm_system.DTOs.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,51 +9,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "APIs for registration, login, OTP, and password reset")
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        try {
-            User user = authService.register(request);
-            return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
-        }
+        return authService.register(request);
     }
 
-    @Operation(summary = "Verify OTP")
-    @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestBody VerifyOtpRequest request) {
-        return ResponseEntity.ok(authService.verifyOtp(request.getEmail(), request.getOtp()));
-    }
-
-    @Operation(summary = "Login user")
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
-    }
-
-    @Operation(summary = "Send OTP for forgot password")
-    @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        return ResponseEntity.ok(authService.sendForgotOtp(request.getEmail()));
-    }
-
-    @Operation(summary = "Reset password")
-    @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
-        return ResponseEntity.ok(authService.resetPassword(request));
-    }
-
-    @Operation(summary = "Verify OTP and set password")
-    @PostMapping("/verify-otp-and-set-password")
-    public ResponseEntity<String> verifyOtpAndSetPassword(
-            @RequestBody VerifyOtpAndSetPasswordRequest request) {
-        return ResponseEntity.ok(authService.verifyOtpAndSetPassword(
-                new VerifyOtpRequest(request.getEmail(), request.getOtp()),
-                request.getNewPassword()));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        return authService.login(request.getEmail(), request.getPassword());
     }
 }
