@@ -10,8 +10,8 @@ public class RegisterRequest {
     @Size(max = 50)
     private String fullName;
 
-    @NotNull
-    private Role role;
+    @NotBlank(message = "Role is required")
+    private String role; // Accepts string input
 
     @NotBlank
     @Email
@@ -21,4 +21,6 @@ public class RegisterRequest {
     @NotBlank
     @Size(min = 8)
     private String password;
+
+
 }

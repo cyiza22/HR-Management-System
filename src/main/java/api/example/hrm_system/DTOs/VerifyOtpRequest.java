@@ -13,5 +13,4 @@ public class VerifyOtpRequest {
     private String email;
     @NotBlank
     private String otp;
-
 }

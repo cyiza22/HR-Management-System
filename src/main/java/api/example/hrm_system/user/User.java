@@ -40,7 +40,10 @@ public class User {
     private Role role;
 
     private String otp;
-    private boolean isVerified = false;
+    private LocalDateTime otpGeneratedTime;
+
+    @Column(name = "is_verified")
+    private boolean verified = false;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
