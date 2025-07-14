@@ -12,7 +12,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/jobs")
 @RequiredArgsConstructor
-public class JobController {
+public class  JobController {
 
     private final JobService jobService;
 
