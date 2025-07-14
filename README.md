@@ -1,7 +1,3 @@
-Got it! Here's a polished and **professional `README.md`** tailored for a **portfolio-ready HRMS (Human Resource Management System)** project, ideal for showcasing on your GitHub and linking in your resume:
-
----
-
 # 🧑‍💼 Human Resource Management System (HRMS)
 
 A full-featured **Human Resource Management System** built with **Java (Spring Boot)** and **PostgreSQL**, designed to streamline HR operations such as employee management, payroll processing, attendance tracking, leave management, and more.
