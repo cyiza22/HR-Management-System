@@ -80,8 +80,13 @@ public class AuthService {
                         .body(Map.of("message", "Registration successful! OTP sent to your email. Please verify to complete registration."));
             } catch (Exception e) {
                 logger.error("Failed to send OTP after registration for email: " + request.getEmail(), e);
+                // Include the error details in development environment
+                String errorDetails = "Failed to send OTP. " + e.getMessage();
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(Map.of("message", "Registration successful, but failed to send OTP. Please try to resend OTP."));
+                        .body(Map.of(
+                                "message", "Registration successful, but failed to send OTP. Please try to resend OTP.",
+                                "error", errorDetails
+                        ));
             }
 
         } catch (Exception e) {
