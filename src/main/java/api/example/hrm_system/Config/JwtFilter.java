@@ -42,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
             // Extract JWT from header
             String jwt = parseJwt(request);
             if (jwt == null) {
-                log.warn("No JWT token found in request headers");
+                log.debug("No JWT token found in request headers");
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -55,7 +55,8 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error("Authentication error: {}", e.getMessage());
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"Authentication failed\"}");
         }
     }
 
@@ -64,7 +65,8 @@ public class JwtFilter extends OncePerRequestFilter {
         return path.startsWith("/api/auth") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
-                path.startsWith("/swagger-resources");
+                path.startsWith("/swagger-resources") ||
+                path.startsWith("/webjars");
     }
 
     private String parseJwt(HttpServletRequest request) {
@@ -92,7 +94,7 @@ public class JwtFilter extends OncePerRequestFilter {
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.info("Authenticated user: {}", email);
+                    log.debug("Authenticated user: {}", email);
                 }
             });
         }

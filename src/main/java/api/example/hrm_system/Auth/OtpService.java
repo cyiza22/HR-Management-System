@@ -17,6 +17,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class OtpService {
     private static final Logger logger = LoggerFactory.getLogger(OtpService.class);
+    private static final int OTP_EXPIRY_MINUTES = 10;
 
     private final UserRepository userRepository;
     private final EmailService emailService;
@@ -28,7 +29,13 @@ public class OtpService {
             user.setOtp(otp);
             user.setOtpGeneratedTime(LocalDateTime.now());
             userRepository.save(user);
+
+            logger.info("OTP generated for user: {}", user.getEmail());
+
+            // Send email
             emailService.sendOtpEmail(user.getEmail(), otp);
+
+            logger.info("OTP sent successfully to: {}", user.getEmail());
         } catch (Exception e) {
             logger.error("Failed to generate/send OTP for user: " + user.getEmail(), e);
             throw new RuntimeException("Failed to send OTP", e);
@@ -41,18 +48,33 @@ public class OtpService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            if (user.getOtp() == null || !user.getOtp().equals(providedOtp)) {
+            if (user.getOtp() == null) {
+                logger.warn("No OTP found for user: {}", email);
                 return false;
             }
 
-            if (user.getOtpGeneratedTime().plusMinutes(10).isBefore(LocalDateTime.now())) {
+            if (!user.getOtp().equals(providedOtp)) {
+                logger.warn("Invalid OTP provided for user: {}", email);
                 return false;
             }
 
+            if (user.getOtpGeneratedTime() == null) {
+                logger.warn("OTP generation time not found for user: {}", email);
+                return false;
+            }
+
+            if (user.getOtpGeneratedTime().plusMinutes(OTP_EXPIRY_MINUTES).isBefore(LocalDateTime.now())) {
+                logger.warn("Expired OTP for user: {}", email);
+                return false;
+            }
+
+            // Clear OTP and mark as verified
             user.setOtp(null);
             user.setOtpGeneratedTime(null);
             user.setVerified(true);
             userRepository.save(user);
+
+            logger.info("OTP verified successfully for user: {}", email);
             return true;
         } catch (Exception e) {
             logger.error("OTP verification failed for email: " + email, e);
@@ -61,6 +83,8 @@ public class OtpService {
     }
 
     private String generateOtp() {
-        return String.valueOf(new Random().nextInt(900000) + 100000);
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000); // Generates a 6-digit OTP
+        return String.valueOf(otp);
     }
 }
