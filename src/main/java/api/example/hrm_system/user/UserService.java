@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService implements UserDetailsService {
-
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -16,9 +15,9 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
-                .map(UserPrincipal::new)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        return new UserPrincipal(user);
     }
 }
-

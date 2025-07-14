@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class UserPrincipal implements UserDetails {
-
     private final User user;
 
     public UserPrincipal(User user) {
@@ -17,10 +16,8 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Convert user role to Spring Security GrantedAuthority
-        return Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-        );
+        // This delegates to the User entity's method
+        return user.getAuthorities();
     }
 
     @Override
@@ -35,25 +32,24 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Modify as needed
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Modify as needed
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Modify as needed
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return user.isVerified(); // Use your verified status
+        return user.isVerified();
     }
 
-    // Helper method to get the actual user entity
     public User getUser() {
         return user;
     }
