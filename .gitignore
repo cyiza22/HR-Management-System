@@ -33,8 +33,4 @@ build/
 ### VS Code ###
 .vscode/
 .env
-<<<<<<< Updated upstream
-.C:\Users\irako\OneDrive\Documents\GitHub\HR-Management-System\src\main\resources\application-dev.properties
-=======
 .src\main\resources\application-dev.properties
->>>>>>> Stashed changes

@@ -1,7 +1,6 @@
 package api.example.hrm_system.payroll;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
@@ -34,6 +33,10 @@ public class PayrollDTO {
     @DecimalMin(value = "0.0", message = "Deduction must be non-negative")
     private BigDecimal deduction;
 
+
+    private String bankName;
+    private String bankAccount;
+
     @NotNull(message = "Status is required")
     private Payroll.PayrollStatus status;
 
@@ -42,4 +45,15 @@ public class PayrollDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
+
+    public BigDecimal getNetSalary() {
+        BigDecimal net = salaryPerMonth != null ? salaryPerMonth : BigDecimal.ZERO;
+
+        if (deduction != null) {
+            net = net.subtract(deduction);
+        }
+
+        return net;
+    }
 }
