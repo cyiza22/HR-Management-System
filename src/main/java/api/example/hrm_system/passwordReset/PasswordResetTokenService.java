@@ -4,7 +4,6 @@ import api.example.hrm_system.DTOs.EmailService;
 import api.example.hrm_system.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PasswordResetTokenService {
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
-
-    @Value("${app.base-url:http://localhost:3000}")
-    private String baseUrl;
 
     @Transactional
     public void createPasswordResetTokenForUser(User user) {
@@ -30,13 +26,16 @@ public class PasswordResetTokenService {
             tokenRepository.save(token);
             log.info("Created new password reset token for user: {}", user.getEmail());
 
-            // Send email with reset link
-            String resetLink = baseUrl + "/reset-password?token=" + token.getToken();
-            emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
-            log.info("Password reset email sent successfully to: {}", user.getEmail());
+            // Send email with token (not a link since no frontend)
+            String resetMessage = "Your password reset token is: " + token.getToken() +
+                    "\nThis token expires in 24 hours." +
+                    "\nUse this token with the password reset API endpoint.";
+
+            emailService.sendPasswordResetEmail(user.getEmail(), resetMessage);
+            log.info("Password reset token sent successfully to: {}", user.getEmail());
         } catch (Exception e) {
             log.error("Failed to create password reset token for user: {}", user.getEmail(), e);
-            throw new RuntimeException("Failed to send password reset email", e);
+            throw new RuntimeException("Failed to send password reset token", e);
         }
     }
 

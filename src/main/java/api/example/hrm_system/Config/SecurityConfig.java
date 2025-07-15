@@ -39,14 +39,73 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints - no authentication required
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/auth/password-reset/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/",
+                                "/error"
                         ).permitAll()
+
+                        // HR-only endpoints
+                        .requestMatchers(
+                                "/api/candidates/**",
+                                "/api/holidays",
+                                "/api/holidays/*",
+                                "/api/departments",
+                                "/api/departments/*/",
+                                "/api/jobs",
+                                "/api/jobs/*",
+                                "/api/payroll",
+                                "/api/payroll/*"
+                        ).hasRole("HR")
+
+                        // Manager and HR endpoints
+                        .requestMatchers(
+                                "/api/candidates",
+                                "/api/departments/*",
+                                "/api/employees/department/*",
+                                "/api/leaves/pending",
+                                "/api/leaves/*/approve",
+                                "/api/leaves/*/reject",
+                                "/api/projects",
+                                "/api/projects/assign",
+                                "/api/projects/department/*",
+                                "/api/attendance/assign",
+                                "/api/attendance/department",
+                                "/api/payroll/department/*"
+                        ).hasAnyRole("MANAGER", "HR")
+
+                        // Employee endpoints
+                        .requestMatchers(
+                                "/api/employees/my-profile",
+                                "/api/employees/personal-info",
+                                "/api/employees/professional-info",
+                                "/api/employees/account-access",
+                                "/api/employees/dashboard",
+                                "/api/leaves",
+                                "/api/leaves/my-leaves",
+                                "/api/projects/my-projects",
+                                "/api/attendance/my-attendance",
+                                "/api/payroll/my-payrolls"
+                        ).hasRole("EMPLOYEE")
+
+                        // Public read-only endpoints
+                        .requestMatchers(
+                                "/api/holidays",
+                                "/api/holidays/upcoming",
+                                "/api/jobs",
+                                "/api/jobs/*",
+                                "/api/projects",
+                                "/api/projects/*",
+                                "/api/departments"
+                        ).permitAll()
+
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

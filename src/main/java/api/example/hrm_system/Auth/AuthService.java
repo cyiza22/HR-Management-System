@@ -56,7 +56,7 @@ public class AuthService {
             }
 
             // Check if email exists
-            if (userRepository.existsByEmail(request.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail().toLowerCase())) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Email already in use"));
             }
@@ -77,22 +77,24 @@ public class AuthService {
             try {
                 otpService.generateAndSendOtp(savedUser);
                 return ResponseEntity.ok()
-                        .body(Map.of("message", "Registration successful! OTP sent to your email. Please verify to complete registration."));
+                        .body(Map.of(
+                                "message", "Registration successful! OTP sent to your email. Please verify to complete registration.",
+                                "email", savedUser.getEmail()
+                        ));
             } catch (Exception e) {
                 logger.error("Failed to send OTP after registration for email: " + request.getEmail(), e);
-                // Include the error details in development environment
-                String errorDetails = "Failed to send OTP. " + e.getMessage();
                 return ResponseEntity.status(HttpStatus.CREATED)
                         .body(Map.of(
                                 "message", "Registration successful, but failed to send OTP. Please try to resend OTP.",
-                                "error", errorDetails
+                                "error", "Failed to send OTP. " + e.getMessage(),
+                                "email", savedUser.getEmail()
                         ));
             }
 
         } catch (Exception e) {
             logger.error("Registration failed for email: " + request.getEmail(), e);
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Registration failed. Please try again later."));
+                    .body(Map.of("error", "Registration failed: " + e.getMessage()));
         }
     }
 
@@ -109,8 +111,8 @@ public class AuthService {
                         .body(Map.of("error", "Password is required"));
             }
 
-            User user = userRepository.findByEmail(request.getEmail().trim().toLowerCase())
-                    .orElse(null);
+            String email = request.getEmail().trim().toLowerCase();
+            User user = userRepository.findByEmail(email).orElse(null);
 
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -121,9 +123,13 @@ public class AuthService {
                 try {
                     otpService.generateAndSendOtp(user);
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                            .body(Map.of("error", "Account not verified. New OTP sent to your email."));
+                            .body(Map.of(
+                                    "error", "Account not verified. New OTP sent to your email.",
+                                    "email", user.getEmail(),
+                                    "requiresVerification", true
+                            ));
                 } catch (Exception e) {
-                    logger.error("Failed to send OTP during login for email: " + request.getEmail(), e);
+                    logger.error("Failed to send OTP during login for email: " + email, e);
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                             .body(Map.of("error", "Account not verified. Please contact support."));
                 }
@@ -131,10 +137,7 @@ public class AuthService {
 
             // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail().trim().toLowerCase(),
-                            request.getPassword()
-                    )
+                    new UsernamePasswordAuthenticationToken(email, request.getPassword())
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -148,7 +151,8 @@ public class AuthService {
                             "message", "Login successful",
                             "token", token,
                             "role", user.getRole().name(),
-                            "fullName", user.getFullName()
+                            "fullName", user.getFullName(),
+                            "email", user.getEmail()
                     ));
         } catch (BadCredentialsException e) {
             logger.warn("Invalid credentials for email: {}", request.getEmail());
@@ -157,7 +161,7 @@ public class AuthService {
         } catch (Exception e) {
             logger.error("Login failed for email: " + request.getEmail(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Login failed. Please try again."));
+                    .body(Map.of("error", "Login failed: " + e.getMessage()));
         }
     }
 
@@ -175,10 +179,11 @@ public class AuthService {
                         .body(Map.of("error", "OTP is required"));
             }
 
-            boolean isValid = otpService.verifyOtp(request.getEmail().trim().toLowerCase(), request.getOtp().trim());
+            String email = request.getEmail().trim().toLowerCase();
+            boolean isValid = otpService.verifyOtp(email, request.getOtp().trim());
 
             if (isValid) {
-                User user = userRepository.findByEmail(request.getEmail().trim().toLowerCase())
+                User user = userRepository.findByEmail(email)
                         .orElseThrow(() -> new RuntimeException("User not found"));
 
                 String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
@@ -190,7 +195,8 @@ public class AuthService {
                                 "message", "OTP verified successfully",
                                 "token", token,
                                 "role", user.getRole().name(),
-                                "fullName", user.getFullName()
+                                "fullName", user.getFullName(),
+                                "email", user.getEmail()
                         ));
             }
 
@@ -199,7 +205,7 @@ public class AuthService {
         } catch (Exception e) {
             logger.error("OTP verification failed for email: " + request.getEmail(), e);
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "OTP verification failed. Please try again."));
+                    .body(Map.of("error", "OTP verification failed: " + e.getMessage()));
         }
     }
 
@@ -210,8 +216,8 @@ public class AuthService {
                         .body(Map.of("error", "Email is required"));
             }
 
-            User user = userRepository.findByEmail(email.trim().toLowerCase())
-                    .orElse(null);
+            String cleanEmail = email.trim().toLowerCase();
+            User user = userRepository.findByEmail(cleanEmail).orElse(null);
 
             if (user == null) {
                 return ResponseEntity.badRequest()
@@ -227,7 +233,7 @@ public class AuthService {
         } catch (Exception e) {
             logger.error("Failed to resend OTP to email: " + email, e);
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Failed to resend OTP. Please try again."));
+                    .body(Map.of("error", "Failed to resend OTP: " + e.getMessage()));
         }
     }
 }
