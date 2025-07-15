@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PersonalInfoDTO {
-    private Long id;
 
     @NotBlank
     private String firstName;

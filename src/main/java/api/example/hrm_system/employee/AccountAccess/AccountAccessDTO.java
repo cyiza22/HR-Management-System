@@ -4,9 +4,10 @@ import lombok.Data;
 
 @Data
 public class AccountAccessDTO {
-    private Long employeeId;
-    private String slackId;
+    private String LinkedIn ;
     private String githubId;
     private String email;
     private String skypeId;
+    private String BankAccountNumber;
+
 }

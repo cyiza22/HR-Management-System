@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeDashboardDTO {
-    private Long id;
 
     @NotBlank
     private String employeeId;
