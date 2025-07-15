@@ -30,18 +30,8 @@ public class AccountAccessService {
                 .map(this::convertToDTO);
     }
 
-    public Optional<AccountAccessDTO> getAccountAccessBySlackId(String slackId) {
-        return accountAccessRepository.findBySlackId(slackId)
-                .map(this::convertToDTO);
-    }
-
     public Optional<AccountAccessDTO> getAccountAccessByGithubId(String githubId) {
         return accountAccessRepository.findByGithubId(githubId)
-                .map(this::convertToDTO);
-    }
-
-    public Optional<AccountAccessDTO> getAccountAccessBySkypeId(String skypeId) {
-        return accountAccessRepository.findBySkypeId(skypeId)
                 .map(this::convertToDTO);
     }
 
@@ -82,32 +72,31 @@ public class AccountAccessService {
         return accountAccessRepository.existsByEmail(email);
     }
 
-    public boolean existsBySlackId(String slackId) {
-        return accountAccessRepository.existsBySlackId(slackId);
-    }
-
     public boolean existsByGithubId(String githubId) {
         return accountAccessRepository.existsByGithubId(githubId);
     }
 
-    public boolean existsBySkypeId(String skypeId) {
-        return accountAccessRepository.existsBySkypeId(skypeId);
-    }
-
     private AccountAccessDTO convertToDTO(Employee employee) {
         AccountAccessDTO dto = new AccountAccessDTO();
-        dto.setEmployeeId(employee.getId());
-        dto.setSlackId(employee.getSlackId());
-        dto.setGithubId(employee.getGithubId());
-        dto.setSkypeId(employee.getSkypeId());
         dto.setEmail(employee.getEmail());
+        dto.setLinkedIn(employee.getLinkedIn());
+        dto.setGithubId(employee.getGithubId());
+        dto.setBankAccountNumber(employee.getBankAccountNumber());
         return dto;
     }
 
     private void updateEmployeeFromDTO(Employee employee, AccountAccessDTO dto) {
-        employee.setSlackId(dto.getSlackId());
-        employee.setGithubId(dto.getGithubId());
-        employee.setSkypeId(dto.getSkypeId());
-        employee.setEmail(dto.getEmail());
+        if (dto.getEmail() != null) {
+            employee.setEmail(dto.getEmail());
+        }
+        if (dto.getLinkedIn() != null) {
+            employee.setLinkedIn(dto.getLinkedIn());
+        }
+        if (dto.getGithubId() != null) {
+            employee.setGithubId(dto.getGithubId());
+        }
+        if (dto.getBankAccountNumber() != null) {
+            employee.setBankAccountNumber(dto.getBankAccountNumber());
+        }
     }
 }

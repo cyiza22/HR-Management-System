@@ -39,4 +39,6 @@ public class PersonalInfoDTO {
 
     @Pattern(regexp = "^[0-9]{5,10}$")
     private String zipCode;
+
+
 }

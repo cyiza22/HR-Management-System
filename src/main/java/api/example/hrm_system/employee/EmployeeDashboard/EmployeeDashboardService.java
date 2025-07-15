@@ -137,7 +137,6 @@ public class EmployeeDashboardService {
         if (employee == null) return null;
 
         EmployeeDashboardDTO dto = new EmployeeDashboardDTO();
-        dto.setId(employee.getId());
         dto.setEmployeeId(employee.getEmployeeId());
         dto.setFirstName(employee.getFirstName());
         dto.setLastName(employee.getLastName());

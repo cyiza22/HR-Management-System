@@ -117,7 +117,6 @@ public class PersonalInfoService {
 
     private PersonalInfoDTO convertToDto(Employee employee) {
         return new PersonalInfoDTO(
-                employee.getId(),
                 employee.getFirstName(),
                 employee.getLastName(),
                 employee.getMobileNumber(),

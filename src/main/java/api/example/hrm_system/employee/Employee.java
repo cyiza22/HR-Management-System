@@ -63,6 +63,9 @@ public class Employee {
     private String officeLocation;
     private String status;
 
+    private String LinkedIn ;
+    private String BankAccountNumber;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     @JsonBackReference
