@@ -25,8 +25,6 @@ public class PayrollService {
         this.pdfGenerator = pdfGenerator;
     }
 
-
-
     @Transactional
     public PayrollDTO createPayroll(PayrollDTO dto) {
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
@@ -40,7 +38,6 @@ public class PayrollService {
 
         return mapToDTO(saved);
     }
-
 
     public List<PayrollDTO> getAllPayrolls() {
         return payrollRepository.findAll().stream()
@@ -82,7 +79,6 @@ public class PayrollService {
                 .collect(Collectors.toList());
     }
 
-
     @Transactional
     public PayrollDTO updatePayroll(Long id, PayrollDTO dto) {
         Payroll existing = payrollRepository.findById(id)
@@ -91,12 +87,9 @@ public class PayrollService {
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + dto.getEmployeeId()));
 
-
         existing.setCtc(dto.getCtc());
         existing.setSalaryPerMonth(dto.getSalaryPerMonth());
         existing.setDeduction(dto.getDeduction());
-        existing.setBankName(dto.getBankName());
-        existing.setBankAccount(dto.getBankAccount());
         existing.setStatus(dto.getStatus());
         existing.setEmployee(employee);
 
@@ -117,8 +110,6 @@ public class PayrollService {
         return mapToDTO(saved);
     }
 
-
-
     @Transactional
     public void deletePayroll(Long id) {
         if (!payrollRepository.existsById(id)) {
@@ -128,35 +119,26 @@ public class PayrollService {
         log.info("Deleted payroll with ID: {}", id);
     }
 
-
     public byte[] generatePayrollPdf(List<PayrollDTO> payrolls) {
         return pdfGenerator.generatePayrollPdf(payrolls);
     }
 
-
-
     private Payroll mapToEntity(PayrollDTO dto) {
         Payroll payroll = new Payroll();
-        payroll.setId(dto.getId());
         payroll.setCtc(dto.getCtc());
         payroll.setSalaryPerMonth(dto.getSalaryPerMonth());
         payroll.setDeduction(dto.getDeduction());
-        payroll.setBankName(dto.getBankName());
-        payroll.setBankAccount(dto.getBankAccount());
         payroll.setStatus(dto.getStatus());
         return payroll;
     }
 
     private PayrollDTO mapToDTO(Payroll payroll) {
         PayrollDTO dto = new PayrollDTO();
-        dto.setId(payroll.getId());
         dto.setEmployeeId(payroll.getEmployee().getId());
         dto.setEmployeeName(payroll.getEmployee().getFirstName() + " " + payroll.getEmployee().getLastName());
         dto.setCtc(payroll.getCtc());
         dto.setSalaryPerMonth(payroll.getSalaryPerMonth());
         dto.setDeduction(payroll.getDeduction());
-        dto.setBankName(payroll.getBankName());
-        dto.setBankAccount(payroll.getBankAccount());
         dto.setStatus(payroll.getStatus());
         dto.setCreatedAt(payroll.getCreatedAt());
         dto.setUpdatedAt(payroll.getUpdatedAt());

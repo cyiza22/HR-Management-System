@@ -35,13 +35,6 @@ public class Payroll {
     @Column(name = "deduction", precision = 12, scale = 2)
     private BigDecimal deduction = BigDecimal.ZERO;
 
-
-    @Column(name = "bank_name", length = 100)
-    private String bankName;
-
-    @Column(name = "bank_account", length = 50)
-    private String bankAccount;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PayrollStatus status = PayrollStatus.PENDING;
@@ -53,7 +46,6 @@ public class Payroll {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
 
     public BigDecimal getNetSalary() {
         BigDecimal net = salaryPerMonth;

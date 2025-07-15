@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PayrollDTO {
 
-    private Long id;
-
     @NotNull(message = "Employee ID is required")
     private Long employeeId;
 
@@ -33,10 +31,6 @@ public class PayrollDTO {
     @DecimalMin(value = "0.0", message = "Deduction must be non-negative")
     private BigDecimal deduction;
 
-
-    private String bankName;
-    private String bankAccount;
-
     @NotNull(message = "Status is required")
     private Payroll.PayrollStatus status;
 
@@ -45,7 +39,6 @@ public class PayrollDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
 
     public BigDecimal getNetSalary() {
         BigDecimal net = salaryPerMonth != null ? salaryPerMonth : BigDecimal.ZERO;

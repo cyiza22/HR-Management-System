@@ -74,19 +74,19 @@ public class PdfGenerator {
     }
 
     private void addPayrollTable(Document document, List<PayrollDTO> payrollList) throws DocumentException {
-        // Create table with 7 columns
-        PdfPTable table = new PdfPTable(7);
+        // Create table with 5 columns (removed bank name and bank account)
+        PdfPTable table = new PdfPTable(5);
         table.setWidthPercentage(100);
         table.setSpacingBefore(10f);
         table.setSpacingAfter(10f);
 
         // Set column widths
-        float[] columnWidths = {3f, 2f, 2f, 1.5f, 1.5f, 2.5f, 2f};
+        float[] columnWidths = {4f, 2.5f, 2.5f, 2f, 2f};
         table.setWidths(columnWidths);
 
         // Add table headers
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE);
-        String[] headers = {"Employee", "CTC", "Monthly Salary", "Deduction", "Net Salary", "Bank Name", "Bank Account"};
+        String[] headers = {"Employee", "CTC", "Monthly Salary", "Deduction", "Net Salary"};
 
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
@@ -125,14 +125,6 @@ public class PdfGenerator {
             // Net Salary
             addCell(table, formatCurrency(getNetSalary(payroll)),
                     numberFont, rowColor, Element.ALIGN_RIGHT);
-
-            // Bank Name
-            addCell(table, getBankName(payroll),
-                    dataFont, rowColor, Element.ALIGN_LEFT);
-
-            // Bank Account
-            addCell(table, getBankAccount(payroll),
-                    dataFont, rowColor, Element.ALIGN_CENTER);
 
             isAlternateRow = !isAlternateRow;
         }
@@ -220,6 +212,7 @@ public class PdfGenerator {
         footer.setSpacingBefore(10);
         document.add(footer);
     }
+
     private String getEmployeeName(PayrollDTO payroll) {
         return payroll.getEmployeeName() != null ? payroll.getEmployeeName() : "N/A";
     }
@@ -240,30 +233,10 @@ public class PdfGenerator {
         return payroll.getNetSalary();
     }
 
-    private String getBankName(PayrollDTO payroll) {
-        return payroll.getBankName() != null ? payroll.getBankName() : "Not Provided";
-    }
-
-    private String getBankAccount(PayrollDTO payroll) {
-        String account = payroll.getBankAccount();
-        if (account != null) {
-            return maskBankAccount(account);
-        }
-        return "Not Provided";
-    }
-
     private String formatCurrency(BigDecimal amount) {
         if (amount == null) {
             return "$0.00";
         }
         return String.format("$%,.2f", amount);
-    }
-
-    private String maskBankAccount(String bankAccount) {
-        if (bankAccount == null || bankAccount.length() < 4) {
-            return bankAccount;
-        }
-        String lastFour = bankAccount.substring(bankAccount.length() - 4);
-        return "****" + lastFour;
     }
 }
