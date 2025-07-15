@@ -36,20 +36,20 @@ public class EmployeeController {
 
     // Employee-specific endpoints
     @GetMapping("/my-profile")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
     public ResponseEntity<EmployeeDashboardDTO> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(employeeDashboardService.getEmployeeByEmail(userDetails.getUsername()));
     }
 
     // Personal Info endpoints
     @GetMapping("/personal-info")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
     public ResponseEntity<PersonalInfoDTO> getMyPersonalInfo(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(personalInfoService.getPersonalInfoByEmail(userDetails.getUsername()));
     }
 
     @PutMapping("/personal-info")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
     public ResponseEntity<PersonalInfoDTO> updateMyPersonalInfo(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody PersonalInfoDTO dto) {
@@ -66,14 +66,14 @@ public class EmployeeController {
 
     // Account Access endpoints
     @GetMapping("/account-access")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
     public ResponseEntity<AccountAccessDTO> getMyAccountAccess(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(accountAccessService.getAccountAccessByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Account access not found")));
     }
 
     @PutMapping("/account-access")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
     public ResponseEntity<AccountAccessDTO> updateMyAccountAccess(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody AccountAccessDTO dto) {
@@ -83,7 +83,7 @@ public class EmployeeController {
 
     // Dashboard endpoints
     @GetMapping("/dashboard")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
     public ResponseEntity<EmployeeDashboardDTO> getMyDashboard(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(employeeDashboardService.getEmployeeByEmail(userDetails.getUsername()));
     }
