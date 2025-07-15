@@ -27,7 +27,7 @@
         <url/>
     </scm>
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -131,7 +131,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-<!--            <version>11.10.1</version>-->
+            <version>11.10.1</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -139,7 +139,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-<!--            <version>11.10.1</version>-->
+            <version>11.10.1</version>
         </dependency>
 
     </dependencies>
