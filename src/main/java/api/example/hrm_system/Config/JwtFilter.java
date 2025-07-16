@@ -108,10 +108,15 @@ public class JwtFilter extends OncePerRequestFilter {
     private void authenticateUser(String jwt, HttpServletRequest request) {
         try {
             String email = jwtUtil.extractUsername(jwt);
+            log.debug("Extracted email from JWT: {}", email);
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 userRepository.findByEmail(email).ifPresent(user -> {
+                    log.debug("Found user: {} with role: {}, verified: {}",
+                            user.getEmail(), user.getRole(), user.isVerified());
+
                     UserPrincipal userPrincipal = new UserPrincipal(user);
+
                     if (jwtUtil.validateToken(jwt, userPrincipal)) {
                         UsernamePasswordAuthenticationToken authentication =
                                 new UsernamePasswordAuthenticationToken(
@@ -123,12 +128,16 @@ public class JwtFilter extends OncePerRequestFilter {
                                 new WebAuthenticationDetailsSource().buildDetails(request)
                         );
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        log.debug("Authenticated user: {} with roles: {}", email, userPrincipal.getAuthorities());
+                        log.debug("Authenticated user: {} with authorities: {}",
+                                email, userPrincipal.getAuthorities());
+                    } else {
+                        log.warn("JWT token validation failed for user: {}", email);
                     }
                 });
             }
         } catch (Exception e) {
             log.error("Error authenticating user: {}", e.getMessage());
+            throw new RuntimeException("Authentication failed", e);
         }
     }
 }

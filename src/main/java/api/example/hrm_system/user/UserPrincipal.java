@@ -16,8 +16,10 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // This delegates to the User entity's method
-        return user.getAuthorities();
+        // Add ROLE_ prefix for Spring Security role-based authorization
+        return Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+        );
     }
 
     @Override
@@ -47,7 +49,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.isVerified();
+        return true;
     }
 
     public User getUser() {

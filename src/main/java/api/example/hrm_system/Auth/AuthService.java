@@ -50,6 +50,7 @@ public class AuthService {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Password must be at least 8 characters long"));
             }
+
             if (!Role.isValidRole(request.getRole())) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Invalid role. Valid roles are: EMPLOYEE, MANAGER, HR"));
@@ -129,6 +130,12 @@ public class AuthService {
                         .body(Map.of("error", "Invalid email or password"));
             }
 
+            // Check if user is verified (uncomment if you want strict verification)
+            // if (!user.isVerified()) {
+            //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            //             .body(Map.of("error", "Please verify your email before logging in"));
+            // }
+
             // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword())
@@ -146,7 +153,8 @@ public class AuthService {
                             "token", token,
                             "role", user.getRole().name(),
                             "fullName", user.getFullName(),
-                            "email", user.getEmail()
+                            "email", user.getEmail(),
+                            "verified", user.isVerified()
                     ));
         } catch (BadCredentialsException e) {
             logger.warn("Invalid credentials for email: {}", request.getEmail());
@@ -190,7 +198,8 @@ public class AuthService {
                                 "token", token,
                                 "role", user.getRole().name(),
                                 "fullName", user.getFullName(),
-                                "email", user.getEmail()
+                                "email", user.getEmail(),
+                                "verified", user.isVerified()
                         ));
             }
 

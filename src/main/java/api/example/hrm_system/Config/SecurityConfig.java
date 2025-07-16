@@ -56,44 +56,38 @@ public class SecurityConfig {
                                 "/api/holidays",
                                 "/api/holidays/upcoming",
                                 "/api/jobs",
-                                "/api/jobs/*",
+                                "/api/jobs/**",
                                 "/api/projects",
-                                "/api/projects/*",
+                                "/api/projects/**",
                                 "/api/departments"
                         ).permitAll()
 
-                        // File upload endpoint
+                        // File upload endpoint - any authenticated user
                         .requestMatchers("/api/upload").authenticated()
 
                         // HR-only endpoints
                         .requestMatchers(
                                 "/api/candidates/**",
-                                "/api/holidays",
-                                "/api/holidays/*",
-                                "/api/departments",
-                                "/api/departments/*/",
-                                "/api/jobs",
-                                "/api/jobs/*",
-                                "/api/payroll",
-                                "/api/payroll/*"
-                        ).hasAuthority("HR")
+                                "/api/holidays/**",
+                                "/api/departments/**",
+                                "/api/jobs/**",
+                                "/api/payroll/**"
+                        ).hasAnyRole("HR")
 
                         // Manager and HR endpoints
                         .requestMatchers(
                                 "/api/candidates",
-                                "/api/departments/*",
-                                "/api/employees/department/*",
+                                "/api/employees/**",
                                 "/api/leaves/pending",
                                 "/api/leaves/*/approve",
                                 "/api/leaves/*/reject",
-                                "/api/projects",
                                 "/api/projects/assign",
-                                "/api/projects/department/*",
+                                "/api/projects/department/**",
                                 "/api/attendance/assign",
                                 "/api/attendance/department",
-                                "/api/payroll/department/*",
-                                "/api/payroll/employee/*"
-                        ).hasAnyAuthority("MANAGER", "HR")
+                                "/api/payroll/department/**",
+                                "/api/payroll/employee/**"
+                        ).hasAnyRole("MANAGER", "HR")
 
                         // Employee, Manager, and HR endpoints (personal data access)
                         .requestMatchers(
@@ -107,7 +101,7 @@ public class SecurityConfig {
                                 "/api/projects/my-projects",
                                 "/api/attendance/my-attendance",
                                 "/api/payroll/my-payrolls"
-                        ).hasAnyAuthority("EMPLOYEE", "MANAGER", "HR")
+                        ).hasAnyRole("EMPLOYEE", "MANAGER", "HR")
 
                         // All other requests require authentication
                         .anyRequest().authenticated()
