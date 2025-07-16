@@ -25,10 +25,9 @@ public class PayrollController {
 
     private final PayrollService payrollService;
 
-
-
+    // HR-only endpoints
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<?> createPayroll(@Valid @RequestBody PayrollDTO dto) {
         try {
             PayrollDTO created = payrollService.createPayroll(dto);
@@ -41,56 +40,15 @@ public class PayrollController {
         }
     }
 
-
     @GetMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<List<PayrollDTO>> getAllPayrolls() {
         List<PayrollDTO> payrolls = payrollService.getAllPayrolls();
         return ResponseEntity.ok(payrolls);
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
-    public ResponseEntity<?> getPayrollById(@PathVariable Long id) {
-        try {
-            PayrollDTO payroll = payrollService.getPayrollById(id);
-            return ResponseEntity.ok(payroll);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/my-payrolls")
-    @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<List<PayrollDTO>> getMyPayrolls(@AuthenticationPrincipal UserDetails userDetails) {
-        List<PayrollDTO> payrolls = payrollService.getPayrollByEmployeeEmail(userDetails.getUsername());
-        return ResponseEntity.ok(payrolls);
-    }
-
-    @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
-    public ResponseEntity<List<PayrollDTO>> getPayrollsByEmployee(@PathVariable Long employeeId) {
-        List<PayrollDTO> payrolls = payrollService.getPayrollsByEmployeeId(employeeId);
-        return ResponseEntity.ok(payrolls);
-    }
-
-    @GetMapping("/department/{departmentId}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
-    public ResponseEntity<List<PayrollDTO>> getDepartmentPayrolls(@PathVariable Long departmentId) {
-        List<PayrollDTO> payrolls = payrollService.getPayrollByDepartment(departmentId);
-        return ResponseEntity.ok(payrolls);
-    }
-
-    @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
-    public ResponseEntity<List<PayrollDTO>> getPayrollsByStatus(@PathVariable Payroll.PayrollStatus status) {
-        List<PayrollDTO> payrolls = payrollService.getPayrollsByStatus(status);
-        return ResponseEntity.ok(payrolls);
-    }
-
-
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<?> updatePayroll(
             @PathVariable Long id,
             @Valid @RequestBody PayrollDTO dto) {
@@ -106,7 +64,7 @@ public class PayrollController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<?> updatePayrollStatus(
             @PathVariable Long id,
             @RequestParam Payroll.PayrollStatus status) {
@@ -121,9 +79,8 @@ public class PayrollController {
         }
     }
 
-
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<?> deletePayroll(@PathVariable Long id) {
         try {
             payrollService.deletePayroll(id);
@@ -136,9 +93,50 @@ public class PayrollController {
         }
     }
 
+    // Manager and HR endpoints
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
+    public ResponseEntity<?> getPayrollById(@PathVariable Long id) {
+        try {
+            PayrollDTO payroll = payrollService.getPayrollById(id);
+            return ResponseEntity.ok(payroll);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
+    @GetMapping("/employee/{employeeId}")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
+    public ResponseEntity<List<PayrollDTO>> getPayrollsByEmployee(@PathVariable Long employeeId) {
+        List<PayrollDTO> payrolls = payrollService.getPayrollsByEmployeeId(employeeId);
+        return ResponseEntity.ok(payrolls);
+    }
+
+    @GetMapping("/department/{departmentId}")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
+    public ResponseEntity<List<PayrollDTO>> getDepartmentPayrolls(@PathVariable Long departmentId) {
+        List<PayrollDTO> payrolls = payrollService.getPayrollByDepartment(departmentId);
+        return ResponseEntity.ok(payrolls);
+    }
+
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
+    public ResponseEntity<List<PayrollDTO>> getPayrollsByStatus(@PathVariable Payroll.PayrollStatus status) {
+        List<PayrollDTO> payrolls = payrollService.getPayrollsByStatus(status);
+        return ResponseEntity.ok(payrolls);
+    }
+
+    // Employee endpoints
+    @GetMapping("/my-payrolls")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER', 'HR')")
+    public ResponseEntity<List<PayrollDTO>> getMyPayrolls(@AuthenticationPrincipal UserDetails userDetails) {
+        List<PayrollDTO> payrolls = payrollService.getPayrollByEmployeeEmail(userDetails.getUsername());
+        return ResponseEntity.ok(payrolls);
+    }
+
+    // PDF Export endpoints
     @GetMapping("/export/pdf")
-    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
     public ResponseEntity<byte[]> exportPayrollToPdf() {
         try {
             List<PayrollDTO> payrolls = payrollService.getAllPayrolls();
@@ -163,7 +161,7 @@ public class PayrollController {
     }
 
     @GetMapping("/export/pdf/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('HR', 'MANAGER', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER', 'EMPLOYEE')")
     public ResponseEntity<byte[]> exportEmployeePayrollToPdf(@PathVariable Long employeeId) {
         try {
             List<PayrollDTO> payrolls = payrollService.getPayrollsByEmployeeId(employeeId);

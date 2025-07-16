@@ -18,9 +18,9 @@ public class PersonalInfoController {
     @Autowired
     private PersonalInfoService personalInfoService;
 
-    // Employee endpoints - can access their own data
+    // Employee, Manager, and HR endpoints - can access their own data
     @GetMapping("/my-info")
-    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<PersonalInfoDTO> getMyPersonalInfo(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             PersonalInfoDTO personalInfo = personalInfoService.getPersonalInfoByEmail(userDetails.getUsername());
@@ -31,7 +31,7 @@ public class PersonalInfoController {
     }
 
     @PutMapping("/my-info")
-    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<PersonalInfoDTO> updateMyPersonalInfo(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody PersonalInfoDTO personalInfoDto) {
@@ -46,9 +46,9 @@ public class PersonalInfoController {
         }
     }
 
-    // HR-only endpoints - can access all data
+    // Manager and HR endpoints - can access all data
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<PersonalInfoDTO> createPersonalInfo(@RequestBody PersonalInfoDTO personalInfoDto) {
         try {
             PersonalInfoDTO savedPersonalInfo = personalInfoService.savePersonalInfo(personalInfoDto);
@@ -59,7 +59,7 @@ public class PersonalInfoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<PersonalInfoDTO> updatePersonalInfo(@PathVariable Long id, @RequestBody PersonalInfoDTO personalInfoDto) {
         try {
             PersonalInfoDTO updatedPersonalInfo = personalInfoService.updatePersonalInfo(id, personalInfoDto);
@@ -72,7 +72,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<PersonalInfoDTO> getPersonalInfoById(@PathVariable Long id) {
         try {
             PersonalInfoDTO personalInfo = personalInfoService.getPersonalInfoById(id);
@@ -83,7 +83,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping("/name/{firstName}/{lastName}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<PersonalInfoDTO> getPersonalInfoByName(@PathVariable String firstName, @PathVariable String lastName) {
         try {
             PersonalInfoDTO personalInfo = personalInfoService.getPersonalInfoByName(firstName, lastName);
@@ -94,7 +94,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping("/search/firstname/{firstName}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<PersonalInfoDTO>> searchByFirstName(@PathVariable String firstName) {
         try {
             List<PersonalInfoDTO> personalInfoList = personalInfoService.searchByFirstName(firstName);
@@ -105,7 +105,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping("/search/lastname/{lastName}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<PersonalInfoDTO>> searchByLastName(@PathVariable String lastName) {
         try {
             List<PersonalInfoDTO> personalInfoList = personalInfoService.searchByLastName(lastName);
@@ -116,7 +116,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping("/search/fullname/{fullName}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<PersonalInfoDTO>> searchByFullName(@PathVariable String fullName) {
         try {
             List<PersonalInfoDTO> personalInfoList = personalInfoService.searchByFullName(fullName);
@@ -127,7 +127,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping("/email/{email}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<PersonalInfoDTO> getPersonalInfoByEmail(@PathVariable String email) {
         try {
             PersonalInfoDTO personalInfo = personalInfoService.getPersonalInfoByEmail(email);
@@ -138,7 +138,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<PersonalInfoDTO>> getAllPersonalInfo() {
         try {
             List<PersonalInfoDTO> personalInfoList = personalInfoService.getAllPersonalInfo();
@@ -149,7 +149,7 @@ public class PersonalInfoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<String> deletePersonalInfo(@PathVariable Long id) {
         try {
             personalInfoService.deletePersonalInfo(id);

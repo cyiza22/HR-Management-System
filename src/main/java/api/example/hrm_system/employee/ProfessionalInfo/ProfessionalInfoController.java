@@ -21,9 +21,9 @@ public class ProfessionalInfoController {
         this.professionalInfoService = professionalInfoService;
     }
 
-    // Employee endpoints - can access their own data
+    // Employee, Manager, and HR endpoints - can access their own data
     @GetMapping("/my-info")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<ProfessionalInfoDTO> getMyProfessionalInfo(@AuthenticationPrincipal UserDetails userDetails) {
         return professionalInfoService.getProfessionalInfoByEmail(userDetails.getUsername())
                 .map(ResponseEntity::ok)
@@ -32,13 +32,13 @@ public class ProfessionalInfoController {
 
     // Manager and HR endpoints - can access department/all data
     @GetMapping("/getAll")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getAllProfessionalInfo() {
         return ResponseEntity.ok(professionalInfoService.getAllProfessionalInfo());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<ProfessionalInfoDTO> getById(@PathVariable Long id) {
         return professionalInfoService.getProfessionalInfoById(id)
                 .map(ResponseEntity::ok)
@@ -46,7 +46,7 @@ public class ProfessionalInfoController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<ProfessionalInfoDTO> getByEmployeeId(@PathVariable String employeeId) {
         return professionalInfoService.getProfessionalInfoByEmployeeId(employeeId)
                 .map(ResponseEntity::ok)
@@ -54,7 +54,7 @@ public class ProfessionalInfoController {
     }
 
     @GetMapping("/username/{username}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<ProfessionalInfoDTO> getByUsername(@PathVariable String username) {
         return professionalInfoService.getProfessionalInfoByUsername(username)
                 .map(ResponseEntity::ok)
@@ -62,7 +62,7 @@ public class ProfessionalInfoController {
     }
 
     @GetMapping("/email/{email}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<ProfessionalInfoDTO> getByEmail(@PathVariable String email) {
         return professionalInfoService.getProfessionalInfoByEmail(email)
                 .map(ResponseEntity::ok)
@@ -70,44 +70,44 @@ public class ProfessionalInfoController {
     }
 
     @GetMapping("/department/{department}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getByDepartment(@PathVariable String department) {
         return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDepartment(department));
     }
 
     @GetMapping("/designation/{designation}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getByDesignation(@PathVariable String designation) {
         return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDesignation(designation));
     }
 
     @GetMapping("/employee-type/{employeeType}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getByEmployeeType(@PathVariable String employeeType) {
         return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByEmployeeType(employeeType));
     }
 
     @GetMapping("/office-location/{officeLocation}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getByOfficeLocation(@PathVariable String officeLocation) {
         return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByOfficeLocation(officeLocation));
     }
 
     @GetMapping("/working-days/{workingDays}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getByWorkingDays(@PathVariable Integer workingDays) {
         return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByWorkingDays(workingDays));
     }
 
     @GetMapping("/department/{department}/designation/{designation}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getByDepartmentAndDesignation(
             @PathVariable String department, @PathVariable String designation) {
         return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDepartmentAndDesignation(department, designation));
     }
 
     @GetMapping("/department/{department}/office-location/{officeLocation}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> getByDepartmentAndOfficeLocation(
             @PathVariable String department, @PathVariable String officeLocation) {
         return ResponseEntity.ok(professionalInfoService.getProfessionalInfoByDepartmentAndOfficeLocation(department, officeLocation));
@@ -115,7 +115,7 @@ public class ProfessionalInfoController {
 
     // HR-only endpoints - can create, update, delete
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<ProfessionalInfoDTO> create(@Valid @RequestBody ProfessionalInfoDTO professionalInfoDTO) {
         try {
             ProfessionalInfoDTO created = professionalInfoService.createProfessionalInfo(professionalInfoDTO);
@@ -126,7 +126,7 @@ public class ProfessionalInfoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<ProfessionalInfoDTO> update(
             @PathVariable Long id, @Valid @RequestBody ProfessionalInfoDTO professionalInfoDTO) {
         try {
@@ -139,7 +139,7 @@ public class ProfessionalInfoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         boolean deleted = professionalInfoService.deleteProfessionalInfo(id);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
@@ -147,43 +147,43 @@ public class ProfessionalInfoController {
 
     // Utility endpoints
     @GetMapping("/exists/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<Boolean> existsByEmployeeId(@PathVariable String employeeId) {
         return ResponseEntity.ok(professionalInfoService.existsByEmployeeId(employeeId));
     }
 
     @GetMapping("/exists/username/{username}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<Boolean> existsByUsername(@PathVariable String username) {
         return ResponseEntity.ok(professionalInfoService.existsByUsername(username));
     }
 
     @GetMapping("/exists/email/{email}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<Boolean> existsByEmail(@PathVariable String email) {
         return ResponseEntity.ok(professionalInfoService.existsByEmail(email));
     }
 
     @GetMapping("/count/department/{department}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<Long> countByDepartment(@PathVariable String department) {
         return ResponseEntity.ok(professionalInfoService.countByDepartment(department));
     }
 
     @GetMapping("/count/designation/{designation}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<Long> countByDesignation(@PathVariable String designation) {
         return ResponseEntity.ok(professionalInfoService.countByDesignation(designation));
     }
 
     @GetMapping("/count/office-location/{officeLocation}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<Long> countByOfficeLocation(@PathVariable String officeLocation) {
         return ResponseEntity.ok(professionalInfoService.countByOfficeLocation(officeLocation));
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProfessionalInfoDTO>> search(
             @RequestParam(required = false) String department,
             @RequestParam(required = false) String designation,
