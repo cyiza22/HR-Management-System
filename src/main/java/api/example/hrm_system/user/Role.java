@@ -12,7 +12,7 @@ public enum Role {
     public static Role fromString(String value) {
         if (value == null) return null;
         try {
-            return Role.valueOf(value.toUpperCase());
+            return Role.valueOf(value.toUpperCase().replace("ROLE_", ""));
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid role value. Valid values are: EMPLOYEE, MANAGER, HR");
         }

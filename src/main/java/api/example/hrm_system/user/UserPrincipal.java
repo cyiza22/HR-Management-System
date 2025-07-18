@@ -16,7 +16,6 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Add ROLE_ prefix for Spring Security role-based authorization
         return Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
         );

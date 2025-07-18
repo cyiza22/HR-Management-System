@@ -32,7 +32,7 @@ public class JwtUtil {
 
     public String generateToken(String email, Role role) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role.name());
+        claims.put("role", "ROLE_" + role.name());
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
@@ -64,7 +64,7 @@ public class JwtUtil {
         try {
             final Claims claims = extractAllClaims(token);
             String roleString = claims.get("role", String.class);
-            return roleString != null ? Role.valueOf(roleString) : null;
+            return roleString != null ? Role.valueOf(roleString.replace("ROLE_", "")) : null;
         } catch (Exception e) {
             log.error("Error extracting role from token: {}", e.getMessage());
             return null;

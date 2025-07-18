@@ -39,7 +39,6 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints - no authentication required
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/auth/password-reset/**",
@@ -50,8 +49,6 @@ public class SecurityConfig {
                                 "/",
                                 "/error"
                         ).permitAll()
-
-                        // Public read-only endpoints
                         .requestMatchers(
                                 "/api/holidays",
                                 "/api/holidays/upcoming",
@@ -61,20 +58,14 @@ public class SecurityConfig {
                                 "/api/projects/**",
                                 "/api/departments"
                         ).permitAll()
-
-                        // File upload endpoint - any authenticated user
                         .requestMatchers("/api/upload").authenticated()
-
-                        // HR-only endpoints
                         .requestMatchers(
                                 "/api/candidates/**",
                                 "/api/holidays/**",
                                 "/api/departments/**",
                                 "/api/jobs/**",
                                 "/api/payroll/**"
-                        ).hasAnyRole("HR")
-
-                        // Manager and HR endpoints
+                        ).hasRole("HR")
                         .requestMatchers(
                                 "/api/candidates",
                                 "/api/employees/**",
@@ -88,8 +79,6 @@ public class SecurityConfig {
                                 "/api/payroll/department/**",
                                 "/api/payroll/employee/**"
                         ).hasAnyRole("MANAGER", "HR")
-
-                        // Employee, Manager, and HR endpoints (personal data access)
                         .requestMatchers(
                                 "/api/employees/my-profile",
                                 "/api/employees/my-dashboard",
@@ -102,8 +91,6 @@ public class SecurityConfig {
                                 "/api/attendance/my-attendance",
                                 "/api/payroll/my-payrolls"
                         ).hasAnyRole("EMPLOYEE", "MANAGER", "HR")
-
-                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
