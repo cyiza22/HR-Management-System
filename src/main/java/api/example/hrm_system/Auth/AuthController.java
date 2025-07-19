@@ -11,7 +11,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// Removed @CrossOrigin annotation since CORS is handled globally
 public class AuthController {
     private final AuthService authService;
 

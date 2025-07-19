@@ -73,8 +73,11 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
+        log.debug("Checking if endpoint is public: {} {}", method, path);
+
         // Always allow auth endpoints
         if (path.startsWith("/api/auth")) {
+            log.debug("Auth endpoint - allowing access");
             return true;
         }
 
@@ -83,11 +86,13 @@ public class JwtFilter extends OncePerRequestFilter {
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/swagger-resources") ||
                 path.startsWith("/webjars")) {
+            log.debug("Swagger endpoint - allowing access");
             return true;
         }
 
         // Allow root path and error
         if (path.equals("/") || path.equals("/error")) {
+            log.debug("Root/error endpoint - allowing access");
             return true;
         }
 
@@ -98,10 +103,12 @@ public class JwtFilter extends OncePerRequestFilter {
                     path.startsWith("/api/jobs") ||
                     path.startsWith("/api/projects") ||
                     path.equals("/api/departments")) {
+                log.debug("Public GET endpoint - allowing access");
                 return true;
             }
         }
 
+        log.debug("Protected endpoint - requiring authentication");
         return false;
     }
 

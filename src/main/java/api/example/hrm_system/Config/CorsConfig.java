@@ -9,7 +9,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
@@ -17,15 +16,6 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(
-                        "http://localhost:3000",
-                        "http://localhost:3001",
-                        "http://localhost:8080",
-                        "http://127.0.0.1:3000",
-                        "http://127.0.0.1:8080",
-                        "https://hr-management-system-pmfp.onrender.com",
-                        "https://hr-management-admin-two.vercel.app"
-                )
                 .allowedOriginPatterns(
                         "http://localhost:*",
                         "http://127.0.0.1:*",
@@ -44,18 +34,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Specific allowed origins (required when allowCredentials is true)
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://localhost:8080",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:8080",
-                "https://hr-management-system-pmfp.onrender.com",
-                "https://hr-management-admin-two.vercel.app"
-        ));
-
-        // Additional origin patterns for flexibility
+        // Use allowedOriginPatterns instead of allowedOrigins when allowCredentials is true
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
