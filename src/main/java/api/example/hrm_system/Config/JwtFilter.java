@@ -43,7 +43,9 @@ public class JwtFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if (jwt == null) {
                 log.debug("No JWT token found in request headers for: {}", request.getRequestURI());
-                filterChain.doFilter(request, response);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Authentication required\"}");
                 return;
             }
 
@@ -52,6 +54,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 authenticateUser(jwt, request);
             } else {
                 log.debug("Invalid JWT token for: {}", request.getRequestURI());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Invalid token\"}");
+                return;
             }
 
             filterChain.doFilter(request, response);
@@ -89,7 +95,9 @@ public class JwtFilter extends OncePerRequestFilter {
         if ("GET".equals(method)) {
             if (path.equals("/api/holidays") ||
                     path.equals("/api/holidays/upcoming") ||
-                    path.startsWith("/api/jobs")) {
+                    path.startsWith("/api/jobs") ||
+                    path.startsWith("/api/projects") ||
+                    path.equals("/api/departments")) {
                 return true;
             }
         }

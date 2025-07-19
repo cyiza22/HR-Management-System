@@ -1,26 +1,26 @@
 package api.example.hrm_system.DTOs;
 
-import api.example.hrm_system.user.Role;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
 public class RegisterRequest {
-    @NotBlank
-    @Size(max = 50)
+    @NotBlank(message = "Full name is required")
+    @Size(max = 50, message = "Full name cannot exceed 50 characters")
     private String fullName;
 
     @NotBlank(message = "Role is required")
-    private String role; // Accepts string input
+    @Pattern(regexp = "^(EMPLOYEE|MANAGER)$", message = "Role must be either EMPLOYEE or MANAGER")
+    private String role; // Only EMPLOYEE or MANAGER allowed through registration
 
-    @NotBlank
-    @Email
-    @Size(max = 50)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
+    @Size(max = 50, message = "Email cannot exceed 50 characters")
     private String email;
 
-    @NotBlank
-    @Size(min = 8)
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",
+            message = "Password must contain at least one uppercase letter, one lowercase letter, and one number")
     private String password;
-
-
 }

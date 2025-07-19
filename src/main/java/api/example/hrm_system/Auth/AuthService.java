@@ -36,6 +36,7 @@ public class AuthService {
     @Transactional
     public ResponseEntity<?> register(RegisterRequest request) {
         try {
+            // Validate input
             if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Full name is required"));
@@ -53,24 +54,32 @@ public class AuthService {
 
             if (!Role.isValidRole(request.getRole())) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Invalid role. Valid roles are: EMPLOYEE, MANAGER, HR"));
+                        .body(Map.of("error", "Invalid role. Valid roles are: EMPLOYEE, MANAGER"));
             }
 
-            if (userRepository.existsByEmail(request.getEmail().toLowerCase())) {
+            String email = request.getEmail().trim().toLowerCase();
+
+            // Prevent HR registration through normal registration
+            if ("hr".equalsIgnoreCase(request.getRole())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "HR accounts cannot be created through registration"));
+            }
+
+            if (userRepository.existsByEmail(email)) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Email already in use"));
             }
 
             User user = User.builder()
                     .fullName(request.getFullName().trim())
-                    .email(request.getEmail().trim().toLowerCase())
+                    .email(email)
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.fromString(request.getRole()))
                     .verified(false)
                     .build();
 
             try {
-                // Generate OTP without saving user first
+                // Generate and send OTP
                 String otp = generateOtp();
                 user.setOtp(otp);
                 user.setOtpGeneratedTime(LocalDateTime.now());
@@ -78,7 +87,7 @@ public class AuthService {
                 emailService.sendOtpEmail(user.getEmail(), otp);
                 logger.info("OTP sent successfully to: {}", user.getEmail());
 
-                // Only save user if OTP was sent successfully
+                // Save user only if OTP was sent successfully
                 User savedUser = userRepository.save(user);
                 logger.info("User registered successfully with email: {}", savedUser.getEmail());
 
@@ -90,7 +99,6 @@ public class AuthService {
 
             } catch (Exception e) {
                 logger.error("Failed to send OTP during registration for email: " + request.getEmail(), e);
-                // Don't save user if OTP fails
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Registration failed: Unable to send verification email. Please try again."));
             }
@@ -100,13 +108,6 @@ public class AuthService {
             return ResponseEntity.internalServerError()
                     .body(Map.of("error", "Registration failed: " + e.getMessage()));
         }
-    }
-
-    // Helper method to generate OTP
-    private String generateOtp() {
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000); // Generates a 6-digit OTP
-        return String.valueOf(otp);
     }
 
     public ResponseEntity<?> login(LoginRequest request) {
@@ -123,6 +124,43 @@ public class AuthService {
             }
 
             String email = request.getEmail().trim().toLowerCase();
+
+            // Handle HR login with predefined credentials
+            if ("hrms.hr@gmail.com".equals(email)) {
+                if (!"HrPassword12345".equals(request.getPassword())) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(Map.of("error", "Invalid HR credentials"));
+                }
+
+                // Create or get HR user
+                User hrUser = userRepository.findByEmail(email)
+                        .orElseGet(() -> {
+                            User newHr = User.builder()
+                                    .fullName("HR Manager")
+                                    .email(email)
+                                    .password(passwordEncoder.encode("HrPassword12345"))
+                                    .role(Role.HR)
+                                    .verified(true)
+                                    .build();
+                            return userRepository.save(newHr);
+                        });
+
+                String token = jwtUtil.generateToken(hrUser.getEmail(), hrUser.getRole());
+
+                logger.info("HR user logged in successfully: {}", hrUser.getEmail());
+
+                return ResponseEntity.ok()
+                        .body(Map.of(
+                                "message", "Login successful",
+                                "token", token,
+                                "role", hrUser.getRole().name(),
+                                "fullName", hrUser.getFullName(),
+                                "email", hrUser.getEmail(),
+                                "verified", hrUser.isVerified()
+                        ));
+            }
+
+            // Regular user login
             User user = userRepository.findByEmail(email).orElse(null);
 
             if (user == null) {
@@ -130,11 +168,11 @@ public class AuthService {
                         .body(Map.of("error", "Invalid email or password"));
             }
 
-            // Check if user is verified (uncomment if you want strict verification)
-            // if (!user.isVerified()) {
-            //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            //             .body(Map.of("error", "Please verify your email before logging in"));
-            // }
+            // Check if user is verified
+            if (!user.isVerified()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Please verify your email before logging in. Check your email for OTP."));
+            }
 
             // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
@@ -156,6 +194,7 @@ public class AuthService {
                             "email", user.getEmail(),
                             "verified", user.isVerified()
                     ));
+
         } catch (BadCredentialsException e) {
             logger.warn("Invalid credentials for email: {}", request.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -194,7 +233,7 @@ public class AuthService {
 
                 return ResponseEntity.ok()
                         .body(Map.of(
-                                "message", "OTP verified successfully",
+                                "message", "Email verified successfully! You can now login.",
                                 "token", token,
                                 "role", user.getRole().name(),
                                 "fullName", user.getFullName(),
@@ -227,6 +266,11 @@ public class AuthService {
                         .body(Map.of("error", "User not found"));
             }
 
+            if (user.isVerified()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "User is already verified"));
+            }
+
             otpService.generateAndSendOtp(user);
 
             logger.info("OTP resent successfully for email: {}", user.getEmail());
@@ -238,5 +282,12 @@ public class AuthService {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Failed to resend OTP: " + e.getMessage()));
         }
+    }
+
+    // Helper method to generate OTP
+    private String generateOtp() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000); // Generates a 6-digit OTP
+        return String.valueOf(otp);
     }
 }

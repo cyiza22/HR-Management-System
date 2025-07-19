@@ -17,28 +17,25 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final UserDetailsService userDetailsService;
+    private final CorsConfig corsConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints - no authentication required
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/auth/password-reset/**",
@@ -49,6 +46,8 @@ public class SecurityConfig {
                                 "/",
                                 "/error"
                         ).permitAll()
+
+                        // Public read-only endpoints
                         .requestMatchers(
                                 "/api/holidays",
                                 "/api/holidays/upcoming",
@@ -58,14 +57,21 @@ public class SecurityConfig {
                                 "/api/projects/**",
                                 "/api/departments"
                         ).permitAll()
+
+                        // File upload - authenticated users only
                         .requestMatchers("/api/upload").authenticated()
+
+                        // HR-only endpoints
                         .requestMatchers(
                                 "/api/candidates/**",
                                 "/api/holidays/**",
                                 "/api/departments/**",
                                 "/api/jobs/**",
-                                "/api/payroll/**"
+                                "/api/payroll/**",
+                                "/api/users/**"
                         ).hasRole("HR")
+
+                        // Manager and HR endpoints
                         .requestMatchers(
                                 "/api/candidates",
                                 "/api/employees/**",
@@ -77,8 +83,13 @@ public class SecurityConfig {
                                 "/api/attendance/assign",
                                 "/api/attendance/department",
                                 "/api/payroll/department/**",
-                                "/api/payroll/employee/**"
+                                "/api/payroll/employee/**",
+                                "/api/personal-info/**",
+                                "/api/professional-info/**",
+                                "/api/account-access/**"
                         ).hasAnyRole("MANAGER", "HR")
+
+                        // Employee, Manager, and HR endpoints
                         .requestMatchers(
                                 "/api/employees/my-profile",
                                 "/api/employees/my-dashboard",
@@ -89,8 +100,12 @@ public class SecurityConfig {
                                 "/api/leaves/my-leaves",
                                 "/api/projects/my-projects",
                                 "/api/attendance/my-attendance",
-                                "/api/payroll/my-payrolls"
+                                "/api/payroll/my-payrolls",
+                                "/api/document/**",
+                                "/api/notifications/**"
                         ).hasAnyRole("EMPLOYEE", "MANAGER", "HR")
+
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -115,24 +130,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    @Bean
-    public CorsFilter corsFilter() {
-        return new CorsFilter(corsConfigurationSource());
     }
 }
