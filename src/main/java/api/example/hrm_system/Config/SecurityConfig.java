@@ -40,11 +40,13 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/auth/password-reset/**",
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/",
-                                "/error"
+                                "/error",
+                                "/favicon.ico"
                         ).permitAll()
 
                         // Public read-only endpoints

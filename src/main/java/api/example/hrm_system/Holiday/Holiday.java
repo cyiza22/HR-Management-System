@@ -26,6 +26,14 @@ public class Holiday {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public void setName(String name) {
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

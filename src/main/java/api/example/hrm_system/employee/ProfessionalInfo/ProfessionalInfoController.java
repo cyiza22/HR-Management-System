@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/professional-info")
-@CrossOrigin(origins = "*")
 public class ProfessionalInfoController {
 
     private final ProfessionalInfoService professionalInfoService;
