@@ -49,6 +49,9 @@ public class SecurityConfig {
                                 "/favicon.ico"
                         ).permitAll()
 
+                        // Debug endpoints
+                        .requestMatchers("/api/debug/**").authenticated()
+
                         // Public read-only endpoints
                         .requestMatchers(
                                 "/api/holidays",
@@ -60,6 +63,12 @@ public class SecurityConfig {
 
                         // File upload - authenticated users only
                         .requestMatchers("/api/upload").authenticated()
+
+                        // EMPLOYEE DASHBOARD SPECIFIC ENDPOINTS - MOST SPECIFIC FIRST
+                        .requestMatchers(
+                                "/api/employees/my-profile",
+                                "/api/employees/my-dashboard"
+                        ).hasAnyAuthority("EMPLOYEE", "MANAGER", "HR")
 
                         // HR-only endpoints
                         .requestMatchers(
@@ -108,10 +117,8 @@ public class SecurityConfig {
                                 "/api/payroll/export/**"
                         ).hasAnyAuthority("MANAGER", "HR")
 
-                        // Employee, Manager, and HR endpoints - EXPLICIT PATTERNS
+                        // Employee, Manager, and HR endpoints - SPECIFIC PATTERNS FIRST
                         .requestMatchers(
-                                "/api/employees/my-profile",
-                                "/api/employees/my-dashboard",
                                 "/api/personal-info/my-info",
                                 "/api/professional-info/my-info",
                                 "/api/account-access/my-account",
@@ -126,7 +133,7 @@ public class SecurityConfig {
                                 "/api/notifications/**"
                         ).hasAnyAuthority("EMPLOYEE", "MANAGER", "HR")
 
-                        // Employee dashboard endpoints for managers and HR
+                        // ALL OTHER Employee dashboard endpoints for managers and HR
                         .requestMatchers("/api/employees/**").hasAnyAuthority("MANAGER", "HR")
 
                         // Professional and personal info for managers and HR

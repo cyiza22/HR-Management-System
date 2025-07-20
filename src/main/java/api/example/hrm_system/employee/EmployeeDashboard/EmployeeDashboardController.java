@@ -4,7 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,10 +22,18 @@ public class EmployeeDashboardController {
         this.employeeDashboardService = employeeDashboardService;
     }
 
+    // EMPLOYEE ENDPOINTS - No @PreAuthorize to avoid conflicts with SecurityConfig
     @GetMapping("/my-profile")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
         try {
+            // Debug authentication
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("=== MY-PROFILE DEBUG ===");
+            System.out.println("UserDetails: " + userDetails);
+            System.out.println("Authentication: " + auth);
+            System.out.println("Authorities: " + (auth != null ? auth.getAuthorities() : "null"));
+            System.out.println("========================");
+
             if (userDetails == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "User not authenticated"));
@@ -41,9 +51,16 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/my-dashboard")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<?> getMyDashboard(@AuthenticationPrincipal UserDetails userDetails) {
         try {
+            // Debug authentication
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("=== MY-DASHBOARD DEBUG ===");
+            System.out.println("UserDetails: " + userDetails);
+            System.out.println("Authentication: " + auth);
+            System.out.println("Authorities: " + (auth != null ? auth.getAuthorities() : "null"));
+            System.out.println("===========================");
+
             if (userDetails == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "User not authenticated"));
@@ -60,8 +77,21 @@ public class EmployeeDashboardController {
         }
     }
 
+    // Test endpoint without @PreAuthorize to see if it's an authorization issue
+    @GetMapping("/test-no-auth")
+    public ResponseEntity<?> testNoAuth(@AuthenticationPrincipal UserDetails userDetails) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(Map.of(
+                "message", "Test endpoint reached!",
+                "userDetails", userDetails != null ? userDetails.getUsername() : "null",
+                "authentication", auth != null ? auth.isAuthenticated() : false,
+                "authorities", auth != null ? auth.getAuthorities().toString() : "null"
+        ));
+    }
+
+    // MANAGER AND HR ENDPOINTS
     @GetMapping
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getAllEmployees() {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.getAllEmployees();
@@ -76,7 +106,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/paginated")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getAllEmployeesPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -93,7 +123,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeeById(@PathVariable Long id) {
         try {
             EmployeeDashboardDTO employee = employeeDashboardService.getEmployeeById(id);
@@ -108,7 +138,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/employee-id/{employeeId}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeeByEmployeeId(@PathVariable String employeeId) {
         try {
             EmployeeDashboardDTO employee = employeeDashboardService.getEmployeeByEmployeeId(employeeId);
@@ -123,7 +153,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/name")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeeByName(
             @RequestParam String firstName,
             @RequestParam String lastName) {
@@ -140,7 +170,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> searchEmployees(@RequestParam String searchTerm) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.searchEmployees(searchTerm);
@@ -156,7 +186,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/search/first-name")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> searchByFirstName(@RequestParam String firstName) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.searchByFirstName(firstName);
@@ -171,7 +201,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/search/last-name")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> searchByLastName(@RequestParam String lastName) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.searchByLastName(lastName);
@@ -186,7 +216,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/search/full-name")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> searchByFullName(@RequestParam String fullName) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.searchByFullName(fullName);
@@ -201,7 +231,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/department/{departmentName}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeesByDepartment(@PathVariable String departmentName) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.getEmployeesByDepartment(departmentName);
@@ -217,7 +247,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/designation/{designation}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeesByDesignation(@PathVariable String designation) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.getEmployeesByDesignation(designation);
@@ -233,7 +263,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/type/{employeeType}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeesByType(@PathVariable String employeeType) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.getEmployeesByType(employeeType);
@@ -249,7 +279,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeesByStatus(@PathVariable String status) {
         try {
             List<EmployeeDashboardDTO> employees = employeeDashboardService.getEmployeesByStatus(status);
@@ -265,7 +295,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/filter")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeesByFilters(
             @RequestParam(required = false) String department,
             @RequestParam(required = false) String designation,
@@ -291,7 +321,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/count/department/{departmentName}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeeCountByDepartment(@PathVariable String departmentName) {
         try {
             long count = employeeDashboardService.getEmployeeCountByDepartment(departmentName);
@@ -306,7 +336,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/count/status/{status}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeeCountByStatus(@PathVariable String status) {
         try {
             long count = employeeDashboardService.getEmployeeCountByStatus(status);
@@ -321,7 +351,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/count/type/{employeeType}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getEmployeeCountByType(@PathVariable String employeeType) {
         try {
             long count = employeeDashboardService.getEmployeeCountByType(employeeType);
@@ -336,7 +366,7 @@ public class EmployeeDashboardController {
     }
 
     @GetMapping("/count/total")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<?> getTotalEmployeeCount() {
         try {
             long count = employeeDashboardService.getTotalEmployeeCount();
