@@ -19,13 +19,13 @@ public class DepartmentController {
 
     // HR-only endpoints
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<DepartmentDTO> createDepartment(@RequestBody Department department) {
         return ResponseEntity.ok(departmentService.createDepartment(department));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Optional<DepartmentDTO>> updateDepartment(
             @PathVariable Long id,
             @RequestBody Department department) {
@@ -33,7 +33,7 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
         departmentService.deleteDepartment(id);
         return ResponseEntity.noContent().build();
@@ -41,13 +41,13 @@ public class DepartmentController {
 
     // Manager and HR endpoints
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<Optional<DepartmentDTO>> getDepartmentById(@PathVariable Long id) {
         return ResponseEntity.ok(departmentService.getDepartmentById(id));
     }
 
     @GetMapping("/my-department")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<DepartmentDTO> getMyDepartment(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(departmentService.getDepartmentByManagerEmail(userDetails.getUsername()));
     }

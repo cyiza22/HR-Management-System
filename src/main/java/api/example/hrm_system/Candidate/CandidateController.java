@@ -16,13 +16,13 @@ public class CandidateController {
 
     // HR-only endpoints
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Candidate> createCandidate(@RequestBody CandidateDTO dto) {
         return ResponseEntity.ok(candidateService.create(dto));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Candidate> updateCandidate(
             @PathVariable Long id,
             @RequestBody CandidateDTO dto) {
@@ -30,7 +30,7 @@ public class CandidateController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Void> deleteCandidate(@PathVariable Long id) {
         candidateService.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -38,7 +38,7 @@ public class CandidateController {
 
     // HR and Manager endpoints
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
     public ResponseEntity<List<Candidate>> getAllCandidates() {
         return ResponseEntity.ok(candidateService.findAll());
     }

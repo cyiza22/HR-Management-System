@@ -12,19 +12,19 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/jobs")
 @RequiredArgsConstructor
-public class  JobController {
+public class JobController {
 
     private final JobService jobService;
 
     // HR-only endpoints
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<JobDTO> createJob(@Valid @RequestBody JobDTO jobDTO) {
         return ResponseEntity.ok(jobService.createJob(jobDTO));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Optional<JobDTO>> updateJob(
             @PathVariable Long id,
             @Valid @RequestBody JobDTO jobDTO) {
@@ -32,7 +32,7 @@ public class  JobController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Void> deleteJob(@PathVariable Long id) {
         jobService.deleteJob(id);
         return ResponseEntity.noContent().build();

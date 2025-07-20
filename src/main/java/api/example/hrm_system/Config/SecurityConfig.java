@@ -55,8 +55,6 @@ public class SecurityConfig {
                                 "/api/holidays/upcoming",
                                 "/api/jobs",
                                 "/api/jobs/**",
-                                "/api/projects",
-                                "/api/projects/**",
                                 "/api/departments"
                         ).permitAll()
 
@@ -65,18 +63,39 @@ public class SecurityConfig {
 
                         // HR-only endpoints
                         .requestMatchers(
-                                "/api/candidates/**",
                                 "/api/holidays/**",
                                 "/api/departments/**",
                                 "/api/jobs/**",
-                                "/api/payroll/**",
                                 "/api/users/**"
                         ).hasAuthority("HR")
+
+                        // HR-only candidate endpoints
+                        .requestMatchers("POST", "/api/candidates").hasAuthority("HR")
+                        .requestMatchers("PUT", "/api/candidates/*").hasAuthority("HR")
+                        .requestMatchers("DELETE", "/api/candidates/*").hasAuthority("HR")
+
+                        // HR-only payroll endpoints
+                        .requestMatchers("POST", "/api/payroll").hasAuthority("HR")
+                        .requestMatchers("PUT", "/api/payroll/*").hasAuthority("HR")
+                        .requestMatchers("PATCH", "/api/payroll/*/status").hasAuthority("HR")
+                        .requestMatchers("DELETE", "/api/payroll/*").hasAuthority("HR")
+
+                        // HR-only professional info endpoints
+                        .requestMatchers("POST", "/api/professional-info").hasAuthority("HR")
+                        .requestMatchers("PUT", "/api/professional-info/*").hasAuthority("HR")
+                        .requestMatchers("DELETE", "/api/professional-info/*").hasAuthority("HR")
+
+                        // HR-only personal info endpoints
+                        .requestMatchers("DELETE", "/api/personal-info/*").hasAuthority("HR")
+
+                        // HR-only account access endpoints
+                        .requestMatchers("POST", "/api/account-access").hasAuthority("HR")
+                        .requestMatchers("PUT", "/api/account-access/*").hasAuthority("HR")
+                        .requestMatchers("DELETE", "/api/account-access/*").hasAuthority("HR")
 
                         // Manager and HR endpoints
                         .requestMatchers(
                                 "/api/candidates",
-                                "/api/employees/**",
                                 "/api/leaves/pending",
                                 "/api/leaves/*/approve",
                                 "/api/leaves/*/reject",
@@ -86,12 +105,10 @@ public class SecurityConfig {
                                 "/api/attendance/department",
                                 "/api/payroll/department/**",
                                 "/api/payroll/employee/**",
-                                "/api/personal-info/**",
-                                "/api/professional-info/**",
-                                "/api/account-access/**"
+                                "/api/payroll/export/**"
                         ).hasAnyAuthority("MANAGER", "HR")
 
-                        // Employee, Manager, and HR endpoints
+                        // Employee, Manager, and HR endpoints - EXPLICIT PATTERNS
                         .requestMatchers(
                                 "/api/employees/my-profile",
                                 "/api/employees/my-dashboard",
@@ -101,11 +118,21 @@ public class SecurityConfig {
                                 "/api/leaves",
                                 "/api/leaves/my-leaves",
                                 "/api/projects/my-projects",
+                                "/api/projects", // GET all projects
+                                "/api/projects/*", // GET project by ID
                                 "/api/attendance/my-attendance",
                                 "/api/payroll/my-payrolls",
                                 "/api/document/**",
                                 "/api/notifications/**"
                         ).hasAnyAuthority("EMPLOYEE", "MANAGER", "HR")
+
+                        // Employee dashboard endpoints for managers and HR
+                        .requestMatchers("/api/employees/**").hasAnyAuthority("MANAGER", "HR")
+
+                        // Professional and personal info for managers and HR
+                        .requestMatchers("/api/personal-info/**").hasAnyAuthority("MANAGER", "HR")
+                        .requestMatchers("/api/professional-info/**").hasAnyAuthority("MANAGER", "HR")
+                        .requestMatchers("/api/account-access/**").hasAnyAuthority("MANAGER", "HR")
 
                         // All other requests require authentication
                         .anyRequest().authenticated()

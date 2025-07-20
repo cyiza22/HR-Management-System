@@ -16,13 +16,13 @@ public class HolidayController {
 
     // HR-only endpoints
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Holiday> createHoliday(@RequestBody HolidayDTO dto) {
         return ResponseEntity.ok(holidayService.addHoliday(dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAuthority('HR')")
     public ResponseEntity<Void> deleteHoliday(@PathVariable Integer id) {
         holidayService.deleteHoliday(id);
         return ResponseEntity.noContent().build();

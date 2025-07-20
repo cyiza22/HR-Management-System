@@ -38,9 +38,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         log.info("Processing request: {} {}", method, path);
 
-        // Log all headers for debugging
-        logHeaders(request);
-
         try {
             // Skip authentication for public endpoints
             if (isPublicEndpoint(request)) {
@@ -49,12 +46,11 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // Extract JWT from header - try multiple ways
+            // Extract JWT from header
             String jwt = parseJwt(request);
 
             if (jwt == null) {
                 log.warn("No JWT token found for protected endpoint: {} {}", method, path);
-                log.warn("Authorization header: {}", request.getHeader("Authorization"));
                 sendUnauthorizedResponse(response, "Authentication required - no token provided");
                 return;
             }
@@ -66,38 +62,23 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (jwtUtil.validateToken(jwt)) {
                     log.info("JWT token is valid, proceeding with authentication");
                     authenticateUser(jwt, request);
-                    log.info("User authenticated successfully");
+                    log.info("User authenticated successfully for: {} {}", method, path);
                 } else {
-                    log.warn("JWT token validation failed");
+                    log.warn("JWT token validation failed for: {} {}", method, path);
                     sendUnauthorizedResponse(response, "Invalid or expired token");
                     return;
                 }
             } catch (Exception e) {
-                log.error("Error during JWT validation: {}", e.getMessage(), e);
+                log.error("Error during JWT validation for {} {}: {}", method, path, e.getMessage(), e);
                 sendUnauthorizedResponse(response, "Token validation failed: " + e.getMessage());
                 return;
             }
 
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            log.error("Unexpected error in JWT filter for {}: {}", path, e.getMessage(), e);
+            log.error("Unexpected error in JWT filter for {} {}: {}", method, path, e.getMessage(), e);
             sendUnauthorizedResponse(response, "Authentication failed: " + e.getMessage());
         }
-    }
-
-    private void logHeaders(HttpServletRequest request) {
-        log.debug("=== REQUEST HEADERS ===");
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            String headerValue = request.getHeader(headerName);
-            if ("authorization".equalsIgnoreCase(headerName)) {
-                log.debug("{}: {}", headerName, headerValue != null ? "Bearer ***" : "null");
-            } else {
-                log.debug("{}: {}", headerName, headerValue);
-            }
-        }
-        log.debug("=====================");
     }
 
     private boolean isPublicEndpoint(HttpServletRequest request) {
@@ -127,7 +108,6 @@ public class JwtFilter extends OncePerRequestFilter {
             if (path.equals("/api/holidays") ||
                     path.equals("/api/holidays/upcoming") ||
                     path.startsWith("/api/jobs") ||
-                    path.startsWith("/api/projects") ||
                     path.equals("/api/departments")) {
                 return true;
             }
@@ -181,6 +161,7 @@ public class JwtFilter extends OncePerRequestFilter {
                             user.getEmail(), user.getRole(), user.isVerified());
 
                     UserPrincipal userPrincipal = new UserPrincipal(user);
+                    log.info("Created UserPrincipal with authorities: {}", userPrincipal.getAuthorities());
 
                     if (jwtUtil.validateToken(jwt, userPrincipal)) {
                         UsernamePasswordAuthenticationToken authentication =
