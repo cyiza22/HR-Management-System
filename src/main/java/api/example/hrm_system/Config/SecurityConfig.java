@@ -71,7 +71,7 @@ public class SecurityConfig {
                                 "/api/jobs/**",
                                 "/api/payroll/**",
                                 "/api/users/**"
-                        ).hasRole("HR")
+                        ).hasAuthority("HR")
 
                         // Manager and HR endpoints
                         .requestMatchers(
@@ -89,7 +89,7 @@ public class SecurityConfig {
                                 "/api/personal-info/**",
                                 "/api/professional-info/**",
                                 "/api/account-access/**"
-                        ).hasAnyRole("MANAGER", "HR")
+                        ).hasAnyAuthority("MANAGER", "HR")
 
                         // Employee, Manager, and HR endpoints
                         .requestMatchers(
@@ -105,7 +105,7 @@ public class SecurityConfig {
                                 "/api/payroll/my-payrolls",
                                 "/api/document/**",
                                 "/api/notifications/**"
-                        ).hasAnyRole("EMPLOYEE", "MANAGER", "HR")
+                        ).hasAnyAuthority("EMPLOYEE", "MANAGER", "HR")
 
                         // All other requests require authentication
                         .anyRequest().authenticated()

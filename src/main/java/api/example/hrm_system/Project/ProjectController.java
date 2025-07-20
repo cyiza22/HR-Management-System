@@ -19,38 +19,53 @@ public class ProjectController {
 
     // Manager and HR endpoints
     @PostMapping
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO dto) {
         return ResponseEntity.ok(projectService.createProject(dto));
     }
 
     @PostMapping("/assign")
-    @PreAuthorize("hasAnyRole('MANAGER', 'HR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<String> assignProject(@Valid @RequestBody AssignmentDTO dto) {
         return ResponseEntity.ok(projectService.assignProject(dto));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable Integer id, @Valid @RequestBody ProjectDTO dto) {
+        return ResponseEntity.ok(projectService.updateProject(dto, id));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
+    public ResponseEntity<Void> deleteProject(@PathVariable Integer id) {
+        projectService.deleteProject(id);
+        return ResponseEntity.noContent().build();
+    }
+
     // Employee endpoints
     @GetMapping("/my-projects")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<List<ProjectDTO>> getMyProjects(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(projectService.getProjectsByEmployeeEmail(userDetails.getUsername()));
     }
 
     // Manager endpoints
     @GetMapping("/department/{departmentId}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'HR')")
     public ResponseEntity<List<ProjectDTO>> getDepartmentProjects(@PathVariable Long departmentId) {
         return ResponseEntity.ok(projectService.getProjectsByDepartment(departmentId));
     }
 
-    // Public endpoints (read-only)
+    // Public endpoints (read-only) - accessible by all authenticated users
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<List<ProjectDTO>> getAllProjects() {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER', 'HR')")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Integer id) {
         return ResponseEntity.ok(projectService.getProjectById(id));
     }

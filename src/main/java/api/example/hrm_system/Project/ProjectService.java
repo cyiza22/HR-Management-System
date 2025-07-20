@@ -2,13 +2,16 @@ package api.example.hrm_system.Project;
 
 import api.example.hrm_system.employee.Employee;
 import api.example.hrm_system.employee.EmployeeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ProjectService {
 
@@ -25,40 +28,60 @@ public class ProjectService {
     }
 
     public List<ProjectDTO> getProjectsByEmployeeEmail(String email) {
-        Employee employee = employeeRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Employee not found with email: " + email));
+        try {
+            Employee employee = employeeRepository.findByEmail(email)
+                    .orElse(null);
 
-        return projectRepository.findByAssignedTo_Id(employee.getId()).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+            if (employee == null) {
+                log.warn("Employee not found with email: {}", email);
+                return Collections.emptyList();
+            }
+
+            return projectRepository.findByAssignedTo_Id(employee.getId()).stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error getting projects for employee email {}: {}", email, e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public List<ProjectDTO> getProjectsByDepartment(Long departmentId) {
-        return projectRepository.findAll().stream()
-                .filter(project -> project.getAssignedTo() != null &&
-                        project.getAssignedTo().getDepartment() != null &&
-                        project.getAssignedTo().getDepartment().getId().equals(departmentId))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        try {
+            return projectRepository.findAll().stream()
+                    .filter(project -> project.getAssignedTo() != null &&
+                            project.getAssignedTo().getDepartment() != null &&
+                            project.getAssignedTo().getDepartment().getId().equals(departmentId))
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error getting projects for department {}: {}", departmentId, e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
-    // Rest of the existing methods remain the same
     @Transactional
     public ProjectDTO createProject(ProjectDTO dto) {
-        validateProjectDates(dto.getStartDate(), dto.getEndDate());
+        try {
+            validateProjectDates(dto.getStartDate(), dto.getEndDate());
 
-        Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + dto.getEmployeeId()));
+            Employee employee = employeeRepository.findById(dto.getEmployeeId())
+                    .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + dto.getEmployeeId()));
 
-        Project project = new Project();
-        project.setName(dto.getName());
-        project.setStartDate(dto.getStartDate());
-        project.setEndDate(dto.getEndDate());
-        project.setStatus(dto.getStatus());
-        project.setAssignedTo(employee);
+            Project project = new Project();
+            project.setName(dto.getName());
+            project.setStartDate(dto.getStartDate());
+            project.setEndDate(dto.getEndDate());
+            project.setStatus(dto.getStatus());
+            project.setAssignedTo(employee);
 
-        Project savedProject = projectRepository.save(project);
-        return convertToDTO(savedProject);
+            Project savedProject = projectRepository.save(project);
+            log.info("Project created successfully: {}", savedProject.getName());
+            return convertToDTO(savedProject);
+        } catch (Exception e) {
+            log.error("Error creating project: {}", e.getMessage());
+            throw new RuntimeException("Failed to create project: " + e.getMessage());
+        }
     }
 
     private void validateProjectDates(LocalDate startDate, LocalDate endDate) {
@@ -68,64 +91,99 @@ public class ProjectService {
     }
 
     public List<ProjectDTO> getAllProjects() {
-        return projectRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        try {
+            return projectRepository.findAll().stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error getting all projects: {}", e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public ProjectDTO getProjectById(Integer id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
-        return convertToDTO(project);
+        try {
+            Project project = projectRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
+            return convertToDTO(project);
+        } catch (Exception e) {
+            log.error("Error getting project by ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Project not found with ID: " + id);
+        }
     }
 
     @Transactional
     public ProjectDTO updateProject(ProjectDTO updated, Integer id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
+        try {
+            Project project = projectRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
 
-        validateProjectDates(updated.getStartDate(), updated.getEndDate());
+            validateProjectDates(updated.getStartDate(), updated.getEndDate());
 
-        Employee employee = employeeRepository.findById(updated.getEmployeeId())
-                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + updated.getEmployeeId()));
+            Employee employee = employeeRepository.findById(updated.getEmployeeId())
+                    .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + updated.getEmployeeId()));
 
-        project.setName(updated.getName());
-        project.setStartDate(updated.getStartDate());
-        project.setEndDate(updated.getEndDate());
-        project.setStatus(updated.getStatus());
-        project.setAssignedTo(employee);
+            project.setName(updated.getName());
+            project.setStartDate(updated.getStartDate());
+            project.setEndDate(updated.getEndDate());
+            project.setStatus(updated.getStatus());
+            project.setAssignedTo(employee);
 
-        Project savedProject = projectRepository.save(project);
-        return convertToDTO(savedProject);
+            Project savedProject = projectRepository.save(project);
+            log.info("Project updated successfully: {}", savedProject.getName());
+            return convertToDTO(savedProject);
+        } catch (Exception e) {
+            log.error("Error updating project {}: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to update project: " + e.getMessage());
+        }
     }
 
     @Transactional
     public void deleteProject(Integer id) {
-        if (!projectRepository.existsById(id)) {
-            throw new RuntimeException("Project not found with ID: " + id);
+        try {
+            if (!projectRepository.existsById(id)) {
+                throw new RuntimeException("Project not found with ID: " + id);
+            }
+            projectRepository.deleteById(id);
+            log.info("Project deleted successfully: {}", id);
+        } catch (Exception e) {
+            log.error("Error deleting project {}: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to delete project: " + e.getMessage());
         }
-        projectRepository.deleteById(id);
     }
 
     @Transactional
     public String assignProject(AssignmentDTO assignmentDTO) {
-        return assignmentService.assignProjectToEmployee(assignmentDTO);
+        try {
+            return assignmentService.assignProjectToEmployee(assignmentDTO);
+        } catch (Exception e) {
+            log.error("Error assigning project: {}", e.getMessage());
+            throw new RuntimeException("Failed to assign project: " + e.getMessage());
+        }
     }
 
     private ProjectDTO convertToDTO(Project project) {
-        ProjectDTO dto = new ProjectDTO();
-        dto.setId(project.getId());
-        dto.setName(project.getName());
-        dto.setStartDate(project.getStartDate());
-        dto.setEndDate(project.getEndDate());
-        dto.setStatus(project.getStatus());
-        dto.setEmployeeId(project.getAssignedTo().getId());
+        try {
+            ProjectDTO dto = new ProjectDTO();
+            dto.setId(project.getId());
+            dto.setName(project.getName());
+            dto.setStartDate(project.getStartDate());
+            dto.setEndDate(project.getEndDate());
+            dto.setStatus(project.getStatus());
 
-        // Add department ID if available
-        if (project.getAssignedTo().getDepartment() != null) {
-            dto.setDepartmentId(project.getAssignedTo().getDepartment().getId());
+            if (project.getAssignedTo() != null) {
+                dto.setEmployeeId(project.getAssignedTo().getId());
+
+                // Add department ID if available
+                if (project.getAssignedTo().getDepartment() != null) {
+                    dto.setDepartmentId(project.getAssignedTo().getDepartment().getId());
+                }
+            }
+
+            return dto;
+        } catch (Exception e) {
+            log.error("Error converting project to DTO: {}", e.getMessage());
+            throw new RuntimeException("Failed to convert project data");
         }
-
-        return dto;
     }
 }

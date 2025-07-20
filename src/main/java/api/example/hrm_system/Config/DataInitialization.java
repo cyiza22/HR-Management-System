@@ -40,6 +40,7 @@ public class DataInitialization implements CommandLineRunner {
         initializeEmployees();
         initializeJobs();
         initializeHolidays();
+        createHREmployeeRecord();
     }
 
     private void initializeHRAccount() {
@@ -64,6 +65,51 @@ public class DataInitialization implements CommandLineRunner {
             }
         } catch (Exception e) {
             log.error("Failed to initialize HR account: {}", e.getMessage());
+        }
+    }
+
+    private void createHREmployeeRecord() {
+        String hrEmail = "hrms.hr@gmail.com";
+        try {
+            if (!employeeRepository.existsByEmail(hrEmail)) {
+                Department hrDept = departmentRepository.findByDepartmentName("Human Resources").orElse(null);
+
+                Employee hrEmployee = new Employee();
+                hrEmployee.setEmployeeId("HR001");
+                hrEmployee.setFirstName("HR");
+                hrEmployee.setLastName("Manager");
+                hrEmployee.setFullName("HR Manager");
+                hrEmployee.setEmail(hrEmail);
+                hrEmployee.setMobileNumber("+1234567890");
+                hrEmployee.setDateOfBirth(LocalDate.of(1980, 1, 1));
+                hrEmployee.setGender("Female");
+                hrEmployee.setNationality("American");
+                hrEmployee.setMaritalStatus("Single");
+                hrEmployee.setAddress("123 HR Street");
+                hrEmployee.setCity("HR City");
+                hrEmployee.setState("CA");
+                hrEmployee.setZipCode("90210");
+                hrEmployee.setDesignation("HR Manager");
+                hrEmployee.setEmployeeType("Full-time");
+                hrEmployee.setJoiningDate(LocalDate.now().minusYears(5));
+                hrEmployee.setWorkingDays(5);
+                hrEmployee.setOfficeLocation("Main Office");
+                hrEmployee.setStatus("Active");
+                hrEmployee.setDepartment(hrDept);
+                hrEmployee.setLinkedIn("https://linkedin.com/in/hr-manager");
+                hrEmployee.setBankAccountNumber("1234567890");
+                hrEmployee.setUsername("hrmanager");
+                hrEmployee.setSlackId("hr.manager");
+                hrEmployee.setGithubId("hr-manager");
+                hrEmployee.setSkypeId("hr.manager");
+
+                employeeRepository.save(hrEmployee);
+                log.info("HR employee record created successfully");
+            } else {
+                log.info("HR employee record already exists");
+            }
+        } catch (Exception e) {
+            log.error("Failed to create HR employee record: {}", e.getMessage());
         }
     }
 
@@ -107,7 +153,7 @@ public class DataInitialization implements CommandLineRunner {
     private void initializeEmployees() {
         try {
             // Create sample employees for different departments
-            if (employeeRepository.count() == 0) {
+            if (employeeRepository.count() <= 1) { // Allow for HR employee
                 Department designDept = departmentRepository.findByDepartmentName("Design Department").orElse(null);
                 Department salesDept = departmentRepository.findByDepartmentName("Sales Department").orElse(null);
                 Department marketingDept = departmentRepository.findByDepartmentName("Marketing Department").orElse(null);
@@ -173,6 +219,12 @@ public class DataInitialization implements CommandLineRunner {
         employee.setCity("New York");
         employee.setState("NY");
         employee.setZipCode("10001");
+        employee.setUsername(firstName.toLowerCase() + "." + lastName.toLowerCase());
+        employee.setLinkedIn("https://linkedin.com/in/" + firstName.toLowerCase() + "-" + lastName.toLowerCase());
+        employee.setBankAccountNumber("ACC" + (int)(Math.random() * 900000000 + 100000000));
+        employee.setSlackId(firstName.toLowerCase() + "." + lastName.toLowerCase());
+        employee.setGithubId(firstName.toLowerCase() + "-" + lastName.toLowerCase());
+        employee.setSkypeId(firstName.toLowerCase() + "." + lastName.toLowerCase());
 
         employeeRepository.save(employee);
     }

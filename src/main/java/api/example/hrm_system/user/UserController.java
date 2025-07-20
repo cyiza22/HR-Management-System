@@ -12,25 +12,25 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/registered")
-    @PreAuthorize("hasAnyRole('ROLE_HR', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
     public ResponseEntity<?> getAllRegisteredUsers() {
         return userService.getAllRegisteredUsers();
     }
 
     @GetMapping("/verified")
-    @PreAuthorize("hasAnyRole('ROLE_HR', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
     public ResponseEntity<?> getAllVerifiedUsers() {
         return userService.getAllVerifiedUsers();
     }
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('ROLE_HR', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
     public ResponseEntity<?> getUserStatistics() {
         return userService.getUserStatistics();
     }
 
     @GetMapping("/role/{role}")
-    @PreAuthorize("hasAnyRole('ROLE_HR', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('HR', 'MANAGER')")
     public ResponseEntity<?> getUsersByRole(@PathVariable String role) {
         return userService.getUsersByRole(role);
     }
