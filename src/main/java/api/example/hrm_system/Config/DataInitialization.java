@@ -108,8 +108,8 @@ public class DataInitialization implements CommandLineRunner {
 
                 Employee hrEmployee = new Employee();
                 hrEmployee.setEmployeeId("HR001");
-                hrEmployee.setFirstName("HR");
-                hrEmployee.setLastName("Manager");
+                hrEmployee.setFirstName("Martha");
+                hrEmployee.setLastName("Mwiza");
                 hrEmployee.setFullName("HR Manager");
                 hrEmployee.setEmail(hrEmail);
                 hrEmployee.setMobileNumber("+1234567890");
@@ -117,8 +117,8 @@ public class DataInitialization implements CommandLineRunner {
                 hrEmployee.setGender("Female");
                 hrEmployee.setNationality("American");
                 hrEmployee.setMaritalStatus("Single");
-                hrEmployee.setAddress("123 HR Street");
-                hrEmployee.setCity("HR City");
+                hrEmployee.setAddress("123 KV Street");
+                hrEmployee.setCity("KG City");
                 hrEmployee.setState("CA");
                 hrEmployee.setZipCode("90210");
                 hrEmployee.setDesignation("HR Manager");
@@ -128,7 +128,7 @@ public class DataInitialization implements CommandLineRunner {
                 hrEmployee.setOfficeLocation("Main Office");
                 hrEmployee.setStatus("Active");
                 hrEmployee.setDepartment(hrDept);
-                hrEmployee.setLinkedIn("https://linkedin.com/in/hr-manager");
+                hrEmployee.setLinkedIn("https://linkedin.com/in/Martha-mwiza");
                 hrEmployee.setBankAccountNumber("1234567890");
                 hrEmployee.setUsername("hrmanager");
                 hrEmployee.setSlackId("hr.manager");
@@ -245,7 +245,7 @@ public class DataInitialization implements CommandLineRunner {
     }
 
     private void createUserAccounts() {
-        // Create user accounts for employees
+        // user accounts for employees
         String[] emails = {
                 "dionne.russell@company.com", "arlene.mccoy@company.com", "cody.fisher@company.com",
                 "theresa.webb@company.com", "ronald.richards@company.com", "darrell.steward@company.com",
@@ -320,7 +320,6 @@ public class DataInitialization implements CommandLineRunner {
 
         employeeRepository.save(employee);
     }
-
     private void initializeJobs() {
         try {
             if (jobRepository.count() == 0) {

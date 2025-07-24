@@ -30,10 +30,8 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        // Handle 64-bit secret by padding it to minimum 256 bits (32 bytes)
         String paddedSecret = secret;
         if (secret.length() < 32) {
-            // Pad with repeating pattern to ensure consistent key
             StringBuilder sb = new StringBuilder(secret);
             while (sb.length() < 32) {
                 sb.append(secret);
@@ -41,7 +39,6 @@ public class JwtUtil {
             paddedSecret = sb.substring(0, 32);
         }
 
-        // Use the padded secret as UTF-8 bytes
         byte[] keyBytes = paddedSecret.getBytes(StandardCharsets.UTF_8);
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
 
